@@ -13,7 +13,17 @@ node_modules/
 # OS
 .DS_Store
 
-# Generated content (rebuilt via npm run content:build)
+# Generated content (rebuilt via npm run content:build / core:build)
 packages/content/build/
 packages/content/dist/
+packages/core/build/
 apps/web/src/data/
+
+# TypeScript incremental build info
+**/*.tsbuildinfo
+
+# IDE
+.idea/
+
+# Lock file (not committed in this repo)
+package-lock.json
