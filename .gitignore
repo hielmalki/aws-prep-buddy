@@ -4,17 +4,16 @@ apps/web/out/
 
 # Dependencies
 node_modules/
-apps/web/node_modules/
 
 # Env files
 .env
 .env.local
 .env.*.local
-apps/web/.env.local
 
 # OS
 .DS_Store
 
-# Build
-dist/
-build/
+# Generated content (rebuilt via npm run content:build)
+packages/content/build/
+packages/content/dist/
+apps/web/src/data/

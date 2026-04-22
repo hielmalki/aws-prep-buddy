@@ -1,32 +1,61 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Question } from '@aws-prep/content';
+import { gradeAnswer } from '@aws-prep/core';
 import { theme, baseFont, mono, slate700, slate200 } from '@/lib/theme';
+import { useRecordAnswer } from '@/lib/progress';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { TutorSheet } from './TutorSheet';
 import { Close, Sparkle, Chevron, ChevronDown, Check, X } from '@/components/icons';
 
-interface QuizScreenProps { dark: boolean; }
+interface QuizScreenProps {
+  question: Question;
+  examId: number;
+  questionNum: number;
+  total: number;
+  dark?: boolean;
+}
 
-const options = [
-  { k: 'A', text: 'Reserved Instances mit 3-Jahres-Commitment', sub: 'Langzeit-Rabatt, aber unflexibel' },
-  { k: 'B', text: 'Spot Instances für fehlertolerante Batch-Jobs', sub: 'Bis zu 90% günstiger, können unterbrochen werden' },
-  { k: 'C', text: 'Dedicated Hosts mit On-Demand pricing', sub: 'Volle Kontrolle über physische Hardware' },
-  { k: 'D', text: 'Savings Plans auf EC2-Familie', sub: 'Flexible Instance-Typen, fester Commit' },
-];
-const correct = 'B';
-
-export function QuizScreen({ dark }: QuizScreenProps) {
+export function QuizScreen({ question, examId, questionNum, total, dark = true }: QuizScreenProps) {
   const t = theme(dark);
   const router = useRouter();
-  const [picked, setPicked] = useState<string | null>(null);
+  const recordAnswer = useRecordAnswer();
+
+  const [picked, setPicked] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [expOpen, setExpOpen] = useState(true);
   const [tutorOpen, setTutorOpen] = useState(false);
 
-  const submit = () => { if (picked) setSubmitted(true); };
+  const isMulti = question.correctLetters.length > 1;
+
+  const togglePick = (letter: string) => {
+    if (submitted) return;
+    if (isMulti) {
+      setPicked(prev => prev.includes(letter) ? prev.filter(l => l !== letter) : [...prev, letter]);
+    } else {
+      setPicked([letter]);
+    }
+  };
+
+  const submit = () => {
+    if (picked.length === 0) return;
+    if (isMulti && picked.length !== question.correctLetters.length) return;
+    setSubmitted(true);
+    const isCorrect = gradeAnswer(question, picked);
+    recordAnswer(examId, questionNum, picked, isCorrect);
+  };
+
+  const goNext = () => {
+    const next = questionNum + 1;
+    if (next > total) {
+      router.push('/');
+    } else {
+      router.push(`/quiz?exam=${examId}&q=${next}`);
+    }
+  };
 
   return (
     <>
@@ -38,54 +67,57 @@ export function QuizScreen({ dark }: QuizScreenProps) {
           </button>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }}>
-              <span>Frage 4 von 20</span>
-              <span style={{ fontVariantNumeric: 'tabular-nums' }}>12:04</span>
+              <span>Frage {questionNum} von {total}</span>
+              <span style={{ fontSize: 11 }}>Exam {examId}</span>
             </div>
-            <ProgressBar pct={(4 / 20) * 100} t={t}/>
+            <ProgressBar pct={(questionNum / total) * 100} t={t}/>
           </div>
         </div>
 
         {/* content */}
         <div style={{ flex: 1, overflow: 'auto', padding: '22px 20px 200px' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-            <Chip color={t.accent} bg={t.accentSoft}>Domain 4 · Billing</Chip>
-            <Chip color={t.textMuted} bg={dark ? 'rgba(255,255,255,0.04)' : '#F1F5F9'} border={t.border}>Medium</Chip>
+            {question.topics.slice(0, 2).map(topic => (
+              <Chip key={topic} color={t.accent} bg={t.accentSoft}>{topic}</Chip>
+            ))}
+            {isMulti && (
+              <Chip color={t.textMuted} bg={dark ? 'rgba(255,255,255,0.04)' : '#F1F5F9'} border={t.border}>
+                Mehrere Antworten
+              </Chip>
+            )}
           </div>
 
-          <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.3, margin: 0, color: t.text }}>
-            Ein Unternehmen hat einen verteilten Batch-Workload, der Unterbrechungen toleriert. Was ist die{' '}
-            <span style={{ color: t.accent }}>kostengünstigste</span> Option?
+          <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.35, margin: 0, color: t.text }}>
+            {question.text}
           </h2>
 
           {/* options */}
           <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {options.map(opt => {
-              const isPicked = picked === opt.k;
-              const isCorrect = submitted && opt.k === correct;
-              const isWrongPick = submitted && isPicked && opt.k !== correct;
+            {question.options.map(opt => {
+              const isPicked = picked.includes(opt.letter);
+              const isCorrect = submitted && question.correctLetters.includes(opt.letter);
+              const isWrongPick = submitted && isPicked && !question.correctLetters.includes(opt.letter);
               let border = t.border, bg = t.surface, badgeBg = t.bg2, badgeColor = t.text;
               if (!submitted && isPicked) { border = t.accent; bg = t.accentSoft; badgeBg = t.accent; badgeColor = '#fff'; }
               if (isCorrect) { border = t.green; bg = dark ? 'rgba(74,222,128,0.1)' : '#F0FDF4'; badgeBg = t.green; badgeColor = '#fff'; }
               if (isWrongPick) { border = t.red; bg = dark ? 'rgba(248,113,113,0.1)' : '#FEF2F2'; badgeBg = t.red; badgeColor = '#fff'; }
 
               return (
-                <button key={opt.k}
+                <button key={opt.letter}
                   disabled={submitted}
-                  onClick={() => setPicked(opt.k)}
+                  onClick={() => togglePick(opt.letter)}
                   style={{
                     textAlign: 'left', padding: 14, borderRadius: 14,
                     border: `1.5px solid ${border}`, background: bg, color: t.text,
                     cursor: submitted ? 'default' : 'pointer', fontFamily: baseFont,
                     display: 'flex', gap: 12, alignItems: 'flex-start',
                     transition: 'all .15s ease',
-                    transform: isPicked && !submitted ? 'scale(0.995)' : 'scale(1)',
                   }}>
-                  <div style={{ width: 32, height: 32, flexShrink: 0, borderRadius: 10, background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, letterSpacing: -0.2 }}>
-                    {isCorrect ? <Check size={18} color="#fff"/> : isWrongPick ? <X size={18} color="#fff"/> : opt.k}
+                  <div style={{ width: 32, height: 32, flexShrink: 0, borderRadius: 10, background: badgeBg, color: badgeColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14 }}>
+                    {isCorrect ? <Check size={18} color="#fff"/> : isWrongPick ? <X size={18} color="#fff"/> : opt.letter}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.35 }}>{opt.text}</div>
-                    <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3, lineHeight: 1.4 }}>{opt.sub}</div>
+                  <div style={{ flex: 1, fontSize: 14, fontWeight: 600, lineHeight: 1.4, paddingTop: 6 }}>
+                    {opt.text}
                   </div>
                 </button>
               );
@@ -96,26 +128,27 @@ export function QuizScreen({ dark }: QuizScreenProps) {
           {submitted && (
             <div style={{ marginTop: 16, borderRadius: 16, background: t.surface, border: `1px solid ${t.border}`, overflow: 'hidden' }}>
               <button onClick={() => setExpOpen(!expOpen)} style={{ width: '100%', padding: 14, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', color: t.text, fontFamily: baseFont }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: t.accentSoft, color: t.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Sparkle size={16} color={t.accent}/>
                 </div>
-                <div style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 700 }}>Erklärung</div>
+                <div style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 700 }}>
+                  {gradeAnswer(question, picked) ? 'Richtig!' : `Falsch — Antwort: ${question.correctLetters.join(', ')}`}
+                </div>
                 <div style={{ transform: expOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .2s' }}>
                   <ChevronDown size={18} color={t.textMuted}/>
                 </div>
               </button>
               {expOpen && (
-                <div style={{ padding: '0 14px 16px', fontSize: 13, color: t.textMuted, lineHeight: 1.55 }}>
-                  <p style={{ margin: 0 }}>
-                    <strong style={{ color: t.text }}>Spot Instances</strong> sind ideal für unterbrechbare Workloads: AWS vergibt ungenutzte EC2-Kapazität mit bis zu{' '}
-                    <strong style={{ color: t.accent }}>90% Rabatt</strong>. Können mit 2-Minuten-Warnung zurückgezogen werden — kein Problem für Batch.
-                  </p>
-                  <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 8, background: t.bg2, border: `1px solid ${t.border}`, fontFamily: mono, fontSize: 12, color: t.text }}>
-                    <div style={{ color: t.accent, fontWeight: 700 }}>// merke</div>
-                    <div>Spot = günstig + unterbrechbar</div>
-                    <div>Reserved = Commit (1–3 J.)</div>
-                    <div>Savings Plan = flexibel, fix $</div>
-                  </div>
+                <div style={{ padding: '0 14px 16px', fontSize: 13, color: t.textMuted, lineHeight: 1.6 }}>
+                  {question.explanation ? (
+                    <div style={{ padding: '10px 12px', borderRadius: 8, background: t.bg2, border: `1px solid ${t.border}`, fontFamily: mono, fontSize: 12, color: t.text, whiteSpace: 'pre-wrap' }}>
+                      {question.explanation}
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0 }}>
+                      Die korrekte Antwort ist <strong style={{ color: t.text }}>{question.correctLetters.join(' und ')}</strong>.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -124,7 +157,7 @@ export function QuizScreen({ dark }: QuizScreenProps) {
 
         {/* floating AI button */}
         <button onClick={() => setTutorOpen(true)} style={{
-          position: 'absolute', left: 20, right: 20, bottom: submitted ? 88 : 92,
+          position: 'absolute', left: 20, right: 20, bottom: 88,
           height: 52, borderRadius: 16,
           border: `1px solid ${t.border}`,
           background: dark ? 'rgba(30,41,59,0.75)' : 'rgba(255,255,255,0.85)',
@@ -142,16 +175,16 @@ export function QuizScreen({ dark }: QuizScreenProps) {
         {/* primary action */}
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '12px 20px 24px', background: t.navBg, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: `1px solid ${t.border}`, zIndex: 35 }}>
           {!submitted ? (
-            <button onClick={submit} disabled={!picked} style={{
+            <button onClick={submit} disabled={picked.length === 0 || (isMulti && picked.length !== question.correctLetters.length)} style={{
               width: '100%', height: 52, borderRadius: 14, border: 'none',
-              background: picked ? t.accent : (dark ? slate700 : slate200),
-              color: picked ? '#fff' : t.textMuted, fontSize: 15, fontWeight: 700,
-              fontFamily: baseFont, cursor: picked ? 'pointer' : 'not-allowed',
-              letterSpacing: 0.1, transition: 'all .2s',
-            }}>Antwort prüfen</button>
+              background: picked.length > 0 ? t.accent : (dark ? slate700 : slate200),
+              color: picked.length > 0 ? '#fff' : t.textMuted, fontSize: 15, fontWeight: 700,
+              fontFamily: baseFont, cursor: picked.length > 0 ? 'pointer' : 'not-allowed',
+              transition: 'all .2s',
+            }}>{isMulti ? `${picked.length}/${question.correctLetters.length} · Antwort prüfen` : 'Antwort prüfen'}</button>
           ) : (
-            <button style={{ width: '100%', height: 52, borderRadius: 14, border: 'none', background: t.text, color: t.bg, fontSize: 15, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer', letterSpacing: 0.1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              Nächste Frage <Chevron size={18} color={t.bg}/>
+            <button onClick={goNext} style={{ width: '100%', height: 52, borderRadius: 14, border: 'none', background: t.text, color: t.bg, fontSize: 15, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              {questionNum < total ? <>Nächste Frage <Chevron size={18} color={t.bg}/></> : 'Exam abgeschlossen →'}
             </button>
           )}
         </div>

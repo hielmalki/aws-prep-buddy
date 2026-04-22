@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@aws-prep/content": "*",
+    "@aws-prep/core": "*",
     "next": "^15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

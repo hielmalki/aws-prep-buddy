@@ -3,7 +3,9 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/web",
-    "build": "npm run build --workspace=apps/web"
+    "content:build": "npm run build --workspace=packages/content",
+    "core:build": "npm run build --workspace=packages/core",
+    "dev": "npm run content:build && npm run core:build && npm run dev --workspace=apps/web",
+    "build": "npm run content:build && npm run core:build && npm run build --workspace=apps/web"
   }
 }

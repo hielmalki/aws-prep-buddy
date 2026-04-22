@@ -1,0 +1,18 @@
+{
+  "name": "@aws-prep/content",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./build/index.js",
+    "./exams.json": "./dist/exams.json",
+    "./sections.json": "./dist/sections.json"
+  },
+  "scripts": {
+    "build": "tsc && node build/build.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
