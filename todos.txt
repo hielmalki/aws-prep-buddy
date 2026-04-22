@@ -1,0 +1,104 @@
+Backend Plan — Was noch fehlt                                                                                                                                                                                      
+                                         
+  Phase 1 · MVP-Backend (jetzt dran)                                                                                                                                                                                 
+                                                                                                                                                                                                                     
+  1. Content-Pipeline (packages/content/)                                                                                                                                                                            
+  - TypeScript-Parser portiert die AWK-Logik aus practice-exam/search_questions.sh
+  - Quelle: ../AWS-Certified-Cloud-Practitioner-Notes/ (Sibling-Repo) → Ziel: exams.json + sections.json                                                                                                             
+  - Schema: { examId, number, text, options[], correctLetters[], explanation?, topics[] }               
+  - Build-Zeit, kein Runtime-MD-Parsing                                                                                                                                                                              
+  - Validierung: genau 23 Exams, alle Fragen ≥2 Optionen, ≥1 correctLetter                                                                                                                                           
+  - Auto-Tagging: Keyword-Heuristik für topics[] (EC2, S3, IAM, VPC, …)                                                                                                                                              
+                                                                                                                                                                                                                     
+  2. Quiz-Engine (packages/core/quiz-engine.ts)                                                                                                                                                                      
+  - selectQuestions(strategy: 'sequential' | 'random' | 'weak-topic', n) — zieht Fragen                                                                                                                              
+  - gradeAnswer(question, picked[]) — unterstützt Single- und Multi-Answer                                                                                                                                           
+  - nextQuestion(session) — Session-State-Machine                         
+  - Session-Objekt: { examId, currentIdx, answers, startedAt, timePerQ[] }                                                                                                                                           
+                                                                                                                                                                                                                     
+  3. Local-First Storage (packages/core/store/)                                                                                                                                                                      
+  - Zustand-Stores: quiz, progress, settings, streak                                                                                                                                                                 
+  - Dexie (IndexedDB) als Persistenz — Adapter hinter Store, damit packages/core nie window/localStorage direkt nutzt (wichtig für spätere Expo-App)                                                                 
+  - Alle Records haben userId-Feld (initial "local") → Migration auf echte Auth ist Find-Replace                                                                                                                     
+  - Streak-Logik: lastActivityDate → tägliches Inkrement, Reset bei Lücke >1 Tag                                                                                                                                     
+                                                                                                                                                                                                                     
+  4. LLM-API-Route (apps/web/app/api/tutor/route.ts)                                                                                                                                                                 
+  - SSE-Streaming (Server-Sent Events) für Token-für-Token-Ausgabe                                                                                                                                                   
+  - Request-Body: { questionId?, sectionSlug?, userMessage, history[] }                                                                                                                                              
+  - Provider-Abstraktion (packages/core/llm-client.ts):                
+  interface LLMProvider { chat(msgs, opts): AsyncIterable<string> }                                                                                                                                                  
+  - Concrete: AnthropicProvider (mit Prompt Caching auf statischem Context-Block) + OpenAIProvider
+  - Context-Injection: lädt relevante Section(s) + Fragetext in System-Prompt                                                                                                                                        
+  - BYOK: User-Keys aus X-LLM-Key + X-LLM-Provider Headers → niemals server-seitig persistiert                                                                                                                       
+  - Server-Fallback: ANTHROPIC_API_KEY / OPENAI_API_KEY aus .env.local                                                                                                                                               
+  - Rate-Limiting pro IP (Upstash Redis oder einfach in-memory)                                                                                                                                                      
+                                                                                                                                                                                                                     
+  5. Feature-Flag-System (packages/core/features.ts)                                                                                                                                                                 
+  - FEATURES = { AI_TUTOR: true, SRS: false, CLOUD_SYNC: false, BILLING: false }                                                                                                                                     
+  - Später per User-Plan überschreibbar → kein Rewrite nötig wenn Billing kommt                                                                                                                                      
+                                                                                                                                                                                                                     
+  6. Settings-Seite (apps/web/app/settings/page.tsx)                                                                                                                                                                 
+  - Provider-Auswahl (Claude/OpenAI)                                                                                                                                                                                 
+  - BYOK-Key-Input (AES-verschlüsselt in IndexedDB via Web Crypto API)                                                                                                                                               
+  - Theme-Toggle (persistiert)                                                                                                                                                                                       
+  - Daily-Goal (Fragen pro Tag)                                                                                                                                                                                      
+                                                        
+  ---                                                                                                                                                                                                                
+  Phase 2 · Skalierung                                  
+                                                                                                                                                                                                                     
+  7. SRS (packages/core/srs.ts)                         
+  - SM-2-Algorithmus (wie Anki): easeFactor, interval, nextReview                                                                                                                                                    
+  - recordAnswer(questionId, quality) → updated Review-Schedule                                                                                                                                                      
+  - Daily-Review-Queue auf Home-Screen                                                                                                                                                                               
+  - Streak hängt an SRS-Reviews                                                                                                                                                                                      
+                                                        
+  8. Auth (Clerk)                                                                                                                                                                                                    
+  - Social Login (Google, Apple, GitHub)                
+  - Migration local → cloud: alle IndexedDB-Records mit userId: "local" → echte User-ID mappen beim ersten Login                                                                                                     
+                                                        
+  9. Cloud-Sync                                                                                                                                                                                                      
+  - Drizzle ORM + Neon Postgres (Serverless)            
+  - Schema spiegelt IndexedDB 1:1                                                                                                                                                                                    
+  - Sync-Adapter: Push bei jedem Write (debounced), Pull beim Login
+  - Konfliktlösung: Last-Write-Wins, Timestamps pro Record                                                                                                                                                           
+                                                                                                                                                                                                                     
+  10. Analytics & Adaptive Learning                                                                                                                                                                                  
+  - Tracking: welche Fragen oft falsch, Zeit pro Frage, Drop-off-Punkte                                                                                                                                              
+  - "Weak Topic"-Card auf Home wird datenbasiert (aktuell hardcoded "VPC 47%")                                                                                                                                       
+  - Empfehlungs-Engine für nächstes Topic                                                                                                                                                                            
+                                                                                                                                                                                                                     
+  ---                                                                                                                                                                                                                
+  Phase 3 · Go-to-Market (falls Verkauf)                                                                                                                                                                             
+                                                                                                                                                                                                                     
+  11. Billing (Stripe)                                  
+  - Free: Quiz + 5 AI-Tutor-Fragen/Tag                                                                                                                                                                               
+  - Pro (~€4,99/Monat): unbegrenzter AI-Tutor, SRS, Cloud-Sync, Offline-Export                                                                                                                                       
+  - Lifetime (~€29): Einmalzahlung                                            
+  - Stripe Webhooks → Feature-Flags pro User                                                                                                                                                                         
+                                                                                                                                                                                                                     
+  12. E-Mail                                                                                                                                                                                                         
+  - Resend oder Postmark                                                                                                                                                                                             
+  - Transaktional: Welcome, Abo-Bestätigung, Daily-Streak-Reminder
+  - Opt-in                                                                                                                                                                                                           
+                                                                                                                                                                                                                     
+  13. Deployment & Monitoring
+  - Vercel für die Next.js-App (kostenlos zum Start)                                                                                                                                                                 
+  - Sentry für Error-Tracking                                                                                                                                                                                        
+  - PostHog oder Plausible für Produkt-Analytics (DSGVO-konform)
+  - Uptime-Monitoring (Better Stack / UptimeRobot)                                                                                                                                                                   
+                                                                                                                                                                                                                     
+  ---                                                                                                                                                                                                                
+  Testing-Strategie (durchgehend)                                                                                                                                                                                    
+                                                                                                                                                                                                                     
+  - Unit: Quiz-Engine, SRS-Algorithmus, Content-Parser (Vitest)
+  - Integration: API-Route /api/tutor gegen gemockte SDKs                                                                                                                                                            
+  - E2E: Playwright für Quiz-Flow (Home → Exam → 5 Fragen → Score)                                                                                                                                                   
+  - Content-Validation: CI-Check, dass Parser alle 23 Exams fehlerfrei verarbeitet                                                                                                                                   
+                                                                                                                                                                                                                     
+  ---                                                                                                                                                                                                                
+  Empfohlene Reihenfolge                                                                                                                                                                                             
+                                                        
+  1. Content-Pipeline (ohne das ist alles andere Mock) ← nächster Schritt
+  2. Quiz-Engine + Local-Storage (ersetzt die hardcoded Mock-Daten auf den Screens)                                                                                                                                  
+  3. LLM-API-Route + Settings-BYOK (macht den AI-Tutor echt)                                                                                                                                                         
+  4. Alles Weitere erst, wenn MVP benutzbar ist        
