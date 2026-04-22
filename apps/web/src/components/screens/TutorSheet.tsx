@@ -6,14 +6,14 @@ import { Sparkle, Close, Clip, Send } from '@/components/icons';
 interface TutorSheetProps { dark: boolean; open: boolean; onClose: () => void; }
 
 const msgs = [
-  { role: 'user', text: 'Warum ist C falsch? Dedicated Hosts geben mir doch auch Kontrolle über Kosten?' },
-  { role: 'ai',   text: 'Guter Gedanke! Aber Dedicated Hosts sind teurer, nicht günstiger — du zahlst für die gesamte physische Maschine, unabhängig von der Auslastung.', code: null },
-  { role: 'ai',   text: 'Die Preis-Hierarchie für EC2 grob von günstig → teuer:', code: {
-    body: '1. Spot         (bis −90%, unterbrechbar)\n2. Savings Plan (−72%, 1–3 Jahre)\n3. Reserved     (−72%, 1–3 Jahre)\n4. On-Demand    (Listenpreis)\n5. Dedicated    (teuerste Option)',
+  { role: 'user', text: 'Why is C wrong? Dedicated Hosts give me cost control too, right?' },
+  { role: 'ai',   text: 'Good thinking! But Dedicated Hosts are more expensive, not cheaper — you pay for the entire physical machine regardless of utilization.', code: null },
+  { role: 'ai',   text: 'Rough EC2 pricing hierarchy from cheapest → most expensive:', code: {
+    body: '1. Spot         (up to −90%, interruptible)\n2. Savings Plan (−72%, 1–3 years)\n3. Reserved     (−72%, 1–3 years)\n4. On-Demand    (list price)\n5. Dedicated    (most expensive)',
   }},
 ];
 
-const quickChips = ['Erkläre einfacher', 'Gib ein Beispiel', 'Warum nicht C?', 'Merksatz?'];
+const quickChips = ['Explain simpler', 'Give an example', 'Why not C?', 'Memory trick?'];
 
 export function TutorSheet({ dark, open, onClose }: TutorSheetProps) {
   const t = theme(dark);
@@ -64,7 +64,7 @@ export function TutorSheet({ dark, open, onClose }: TutorSheetProps) {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700 }}>AI Tutor</div>
-            <div style={{ fontSize: 11, color: t.textMuted }}>Online · antwortet in DE</div>
+            <div style={{ fontSize: 11, color: t.textMuted }}>Online · replies in English</div>
           </div>
           {/* model toggle */}
           <div style={{ display: 'flex', padding: 3, borderRadius: 10, background: t.bg2, border: `1px solid ${t.border}` }}>
@@ -93,7 +93,7 @@ export function TutorSheet({ dark, open, onClose }: TutorSheetProps) {
             fontSize: 12, color: t.text, fontWeight: 500,
           }}>
             <Clip size={13} color={t.accent}/>
-            <span style={{ fontWeight: 600 }}>Frage 4</span>
+            <span style={{ fontWeight: 600 }}>Question 4</span>
             <span style={{ color: t.textMuted }}>·</span>
             <span style={{ color: t.textMuted }}>EC2 Instance Types</span>
           </div>
@@ -146,7 +146,7 @@ export function TutorSheet({ dark, open, onClose }: TutorSheetProps) {
                 }}/>
               ))}
             </div>
-            tippt…
+            typing…
           </div>
         </div>
 
@@ -168,7 +168,7 @@ export function TutorSheet({ dark, open, onClose }: TutorSheetProps) {
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Frage den Tutor…"
+              placeholder="Ask the tutor…"
               style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontFamily: baseFont, fontSize: 14, color: t.text }}
             />
           </div>

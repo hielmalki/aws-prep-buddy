@@ -7,7 +7,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 
 export const metadata: Metadata = {
   title: 'AWS Prep Buddy',
-  description: 'Tägliches Lernen für die AWS Cloud Practitioner (CLF-C02) Zertifizierung',
+  description: 'Daily practice for the AWS Cloud Practitioner (CLF-C02) certification',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'AWS Prep' },
 };
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body style={{ minHeight: '100dvh', background: '#0F172A' }}>{children}</body>
     </html>
   );

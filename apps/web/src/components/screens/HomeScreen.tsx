@@ -26,19 +26,13 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
   const continueExamId = stats.lastExamId ?? 1;
   const continueQ = stats.lastQuestionNumber ?? 1;
 
-  const formatTime = (minutes: number) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return h > 0 ? `${h}h ${m}m` : `${m}m`;
-  };
-
   return (
     <>
       <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
         {/* Header */}
         <div style={{ padding: '64px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Bereit zum Lernen 👋</div>
+            <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Ready to learn 👋</div>
             <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, marginTop: 2 }}>AWS Prep Buddy</div>
           </div>
           <button onClick={onToggleDark} style={{ width: 38, height: 38, borderRadius: 12, border: `1px solid ${t.border}`, background: t.surface, color: t.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -59,20 +53,20 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
             <AnimatedProgressRing targetPct={progressPct} t={t}/>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, background: 'rgba(255,153,0,0.14)', color: t.accent, fontSize: 11, fontWeight: 700, letterSpacing: 0.3 }}>
-                <Flame size={12} color={t.accent}/> {stats.streakDays} TAGE STREAK
+                <Flame size={12} color={t.accent}/> {stats.streakDays} DAY STREAK
               </div>
-              <div style={{ fontSize: 15, fontWeight: 600, marginTop: 8, lineHeight: 1.3 }}>Heutiges Ziel</div>
+              <div style={{ fontSize: 15, fontWeight: 600, marginTop: 8, lineHeight: 1.3 }}>Daily goal</div>
               <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
                 {stats.totalAnswered === 0
-                  ? 'Starte dein erstes Quiz 🚀'
-                  : `${Math.max(0, DAILY_GOAL - todayAnswered)} Fragen bis zur Flamme 🔥`}
+                  ? 'Start your first quiz 🚀'
+                  : `${Math.max(0, DAILY_GOAL - todayAnswered)} questions to go 🔥`}
               </div>
             </div>
           </div>
 
-          {/* Section: Weiter lernen */}
+          {/* Section: Continue learning */}
           <div style={{ marginTop: 24, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase' }}>Weiter lernen</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase' }}>Continue learning</div>
           </div>
 
           {/* Continue Exam card */}
@@ -86,10 +80,10 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 15, fontWeight: 600 }}>
-                    {stats.lastExamId ? `Weiter — Practice Exam ${continueExamId}` : 'Practice Exam 1 starten'}
+                    {stats.lastExamId ? `Continue — Practice Exam ${continueExamId}` : 'Start Practice Exam 1'}
                   </div>
                   <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
-                    {stats.lastExamId ? `Frage ${continueQ}` : 'Frage 1 von 50'}
+                    {stats.lastExamId ? `Question ${continueQ}` : 'Question 1 of 50'}
                   </div>
                 </div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: t.accent, letterSpacing: -0.5 }}>
@@ -103,7 +97,7 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
           </button>
 
           {/* AI Tutor card */}
-          <div style={{ marginTop: 24, fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase' }}>Hilfe holen</div>
+          <div style={{ marginTop: 24, fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase' }}>Get help</div>
           <button onClick={() => setTutorOpen(true)} style={{ width: '100%', textAlign: 'left', border: 'none', padding: 0, background: 'transparent', cursor: 'pointer', marginTop: 10 }}>
             <div style={{
               position: 'relative', overflow: 'hidden',
@@ -119,12 +113,12 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 16, fontWeight: 700 }}>AI Tutor</div>
-                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Claude & GPT · erklärt, was nicht klickt</div>
+                  <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>Claude & GPT · explains what&apos;s not clicking</div>
                 </div>
                 <Chevron size={18} color={t.textMuted}/>
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-                {['Was ist ein NAT Gateway?', 'S3 vs EFS?', 'IAM erklärt'].map(p => (
+                {['What is a NAT Gateway?', 'S3 vs EFS?', 'IAM explained'].map(p => (
                   <span key={p} style={{ fontSize: 11, padding: '6px 10px', borderRadius: 999, background: dark ? 'rgba(255,255,255,0.06)' : '#fff', border: `1px solid ${t.border}`, color: t.textMuted, fontWeight: 500 }}>{p}</span>
                 ))}
               </div>
@@ -134,9 +128,9 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
           {/* Stats row */}
           <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             {[
-              { l: 'Ø Score',  v: stats.totalAnswered > 0 ? `${stats.avgScore}%` : '—', Icon: Trophy, c: t.accent },
-              { l: 'Fragen',   v: String(stats.totalAnswered),                           Icon: Quiz,   c: t.text },
-              { l: 'Streak',   v: `${stats.streakDays}d`,                                Icon: Flame,  c: t.text },
+              { l: 'Avg Score', v: stats.totalAnswered > 0 ? `${stats.avgScore}%` : '—', Icon: Trophy, c: t.accent },
+              { l: 'Questions', v: String(stats.totalAnswered),                           Icon: Quiz,   c: t.text },
+              { l: 'Streak',    v: `${stats.streakDays}d`,                                Icon: Flame,  c: t.text },
             ].map(s => (
               <div key={s.l} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: '12px 12px' }}>
                 <div style={{ color: s.c, opacity: 0.9 }}><s.Icon size={16} color={s.c}/></div>

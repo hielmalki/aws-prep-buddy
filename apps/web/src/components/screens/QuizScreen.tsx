@@ -67,7 +67,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
           </button>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: t.textMuted, marginBottom: 6 }}>
-              <span>Frage {questionNum} von {total}</span>
+              <span>Question {questionNum} of {total}</span>
               <span style={{ fontSize: 11 }}>Exam {examId}</span>
             </div>
             <ProgressBar pct={(questionNum / total) * 100} t={t}/>
@@ -82,7 +82,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
             ))}
             {isMulti && (
               <Chip color={t.textMuted} bg={dark ? 'rgba(255,255,255,0.04)' : '#F1F5F9'} border={t.border}>
-                Mehrere Antworten
+                Multiple answers
               </Chip>
             )}
           </div>
@@ -132,7 +132,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
                   <Sparkle size={16} color={t.accent}/>
                 </div>
                 <div style={{ flex: 1, textAlign: 'left', fontSize: 14, fontWeight: 700 }}>
-                  {gradeAnswer(question, picked) ? 'Richtig!' : `Falsch — Antwort: ${question.correctLetters.join(', ')}`}
+                  {gradeAnswer(question, picked) ? 'Correct!' : `Wrong — Answer: ${question.correctLetters.join(', ')}`}
                 </div>
                 <div style={{ transform: expOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .2s' }}>
                   <ChevronDown size={18} color={t.textMuted}/>
@@ -146,7 +146,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
                     </div>
                   ) : (
                     <p style={{ margin: 0 }}>
-                      Die korrekte Antwort ist <strong style={{ color: t.text }}>{question.correctLetters.join(' und ')}</strong>.
+                      The correct answer is <strong style={{ color: t.text }}>{question.correctLetters.join(' and ')}</strong>.
                     </p>
                   )}
                 </div>
@@ -181,10 +181,10 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
               color: picked.length > 0 ? '#fff' : t.textMuted, fontSize: 15, fontWeight: 700,
               fontFamily: baseFont, cursor: picked.length > 0 ? 'pointer' : 'not-allowed',
               transition: 'all .2s',
-            }}>{isMulti ? `${picked.length}/${question.correctLetters.length} · Antwort prüfen` : 'Antwort prüfen'}</button>
+            }}>{isMulti ? `${picked.length}/${question.correctLetters.length} selected · Check` : 'Check answer'}</button>
           ) : (
             <button onClick={goNext} style={{ width: '100%', height: 52, borderRadius: 14, border: 'none', background: t.text, color: t.bg, fontSize: 15, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              {questionNum < total ? <>Nächste Frage <Chevron size={18} color={t.bg}/></> : 'Exam abgeschlossen →'}
+              {questionNum < total ? <>Next question <Chevron size={18} color={t.bg}/></> : 'Exam complete →'}
             </button>
           )}
         </div>

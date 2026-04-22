@@ -23,7 +23,7 @@ export function ProgressRing({ pct, size = 96, stroke = 9, t }: ProgressRingProp
         <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1 }}>
           6<span style={{ color: t.textMuted, fontSize: 14, fontWeight: 500 }}>/10</span>
         </div>
-        <div style={{ fontSize: 10, color: t.textMuted, marginTop: 3, letterSpacing: 0.4, textTransform: 'uppercase', fontWeight: 600 }}>Fragen</div>
+        <div style={{ fontSize: 10, color: t.textMuted, marginTop: 3, letterSpacing: 0.4, textTransform: 'uppercase', fontWeight: 600 }}>Questions</div>
       </div>
     </div>
   );
