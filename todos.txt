@@ -102,3 +102,9 @@ Backend Plan — Was noch fehlt
   2. Quiz-Engine + Local-Storage (ersetzt die hardcoded Mock-Daten auf den Screens)                                                                                                                                  
   3. LLM-API-Route + Settings-BYOK (macht den AI-Tutor echt)                                                                                                                                                         
   4. Alles Weitere erst, wenn MVP benutzbar ist        
+
+
+
+    - Daily Goal konfigurierbar machen (Settings-Store hat noch kein Feld, aktuell Konstante DAILY_GOAL = 10).
+    - Quiz-Ergebnis-Screen / Review-Ansicht (falsche Antworten nochmal).
+    - Learn-Tab mit Section-Notes anbinden (Content ist geparst aber noch nicht im UI).
