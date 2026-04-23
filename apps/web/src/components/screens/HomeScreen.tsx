@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { theme, baseFont, slate700, slate200 } from '@/lib/theme';
-import { useProgress } from '@/lib/progress';
+import { useProgressStore, useStreakStore } from '@aws-prep/core';
 import { AnimatedProgressRing } from '@/components/ui/ProgressRing';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
@@ -17,7 +17,9 @@ const DAILY_GOAL = 10;
 export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
   const t = theme(dark);
   const router = useRouter();
-  const stats = useProgress();
+  const progressStats = useProgressStore(s => s.stats);
+  const streakDays = useStreakStore(s => s.currentStreak);
+  const stats = { ...progressStats, streakDays };
   const [tutorOpen, setTutorOpen] = useState(false);
 
   const todayAnswered = 0; // placeholder — would need timestamp filter in useProgress

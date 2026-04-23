@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { StorageProvider } from '@/components/StorageProvider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -24,7 +25,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body style={{ minHeight: '100dvh', background: '#0F172A' }}>{children}</body>
+      <body style={{ minHeight: '100dvh', background: '#0F172A' }}>
+          <StorageProvider>{children}</StorageProvider>
+        </body>
     </html>
   );
 }

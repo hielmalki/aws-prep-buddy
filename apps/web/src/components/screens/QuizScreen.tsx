@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { Question } from '@aws-prep/content';
 import { gradeAnswer } from '@aws-prep/core';
 import { theme, baseFont, mono, slate700, slate200 } from '@/lib/theme';
-import { useRecordAnswer } from '@/lib/progress';
+import { useProgressStore } from '@aws-prep/core';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
 import { BottomNav } from '@/components/ui/BottomNav';
@@ -22,7 +22,7 @@ interface QuizScreenProps {
 export function QuizScreen({ question, examId, questionNum, total, dark = true }: QuizScreenProps) {
   const t = theme(dark);
   const router = useRouter();
-  const recordAnswer = useRecordAnswer();
+  const recordAnswer = useProgressStore(s => s.recordAnswer);
 
   const [picked, setPicked] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);

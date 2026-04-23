@@ -10,7 +10,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@aws-prep/content": "*"
+    "@aws-prep/content": "*",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

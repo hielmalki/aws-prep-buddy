@@ -10,3 +10,21 @@ export {
 } from './quiz-engine.js';
 export { recordAnswer as recordSrsAnswer } from './srs.js';
 export { FEATURES } from './features.js';
+export {
+  useQuizStore,
+  useProgressStore,
+  useSettingsStore,
+  useStreakStore,
+  setStorageAdapter,
+  getStorageAdapter,
+  computeNextStreak,
+  todayString,
+} from './store/index.js';
+export type {
+  StorageAdapter,
+  ProgressStats,
+  AnswerRecord,
+  SessionRecord,
+  SettingsRecord,
+  StreakRecord,
+} from './store/index.js';
