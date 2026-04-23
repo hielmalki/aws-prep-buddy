@@ -2,9 +2,9 @@
 import { Theme } from '@/lib/theme';
 import { useState, useEffect } from 'react';
 
-interface ProgressRingProps { pct: number; size?: number; stroke?: number; t: Theme; }
+interface ProgressRingProps { pct: number; current: number; target: number; label?: string; size?: number; stroke?: number; t: Theme; }
 
-export function ProgressRing({ pct, size = 96, stroke = 9, t }: ProgressRingProps) {
+export function ProgressRing({ pct, current, target, label, size = 96, stroke = 9, t }: ProgressRingProps) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const off = c - (pct / 100) * c;
@@ -21,9 +21,9 @@ export function ProgressRing({ pct, size = 96, stroke = 9, t }: ProgressRingProp
         alignItems: 'center', justifyContent: 'center', color: t.text,
       }}>
         <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1 }}>
-          6<span style={{ color: t.textMuted, fontSize: 14, fontWeight: 500 }}>/10</span>
+          {current}<span style={{ color: t.textMuted, fontSize: 14, fontWeight: 500 }}>/{target}</span>
         </div>
-        <div style={{ fontSize: 10, color: t.textMuted, marginTop: 3, letterSpacing: 0.4, textTransform: 'uppercase', fontWeight: 600 }}>Questions</div>
+        <div style={{ fontSize: 10, color: t.textMuted, marginTop: 3, letterSpacing: 0.4, textTransform: 'uppercase', fontWeight: 600 }}>{label ?? 'Questions'}</div>
       </div>
     </div>
   );
@@ -32,5 +32,5 @@ export function ProgressRing({ pct, size = 96, stroke = 9, t }: ProgressRingProp
 export function AnimatedProgressRing(props: Omit<ProgressRingProps, 'pct'> & { targetPct: number }) {
   const [pct, setPct] = useState(0);
   useEffect(() => { const id = setTimeout(() => setPct(props.targetPct), 200); return () => clearTimeout(id); }, [props.targetPct]);
-  return <ProgressRing {...props} pct={pct} />;
+  return <ProgressRing {...props} pct={pct} current={props.current} target={props.target} />;
 }

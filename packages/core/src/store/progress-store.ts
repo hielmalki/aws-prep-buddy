@@ -5,6 +5,7 @@ import type { AnswerRecord } from './schema.js';
 
 export interface ProgressStats {
   totalAnswered: number;
+  todayAnswered: number;
   correctCount: number;
   avgScore: number;
   lastExamId: number | null;
@@ -12,15 +13,24 @@ export interface ProgressStats {
   topicAccuracy: Record<string, { correct: number; total: number }>;
 }
 
+function isSameLocalDay(ts: number, now = Date.now()): boolean {
+  const a = new Date(ts), b = new Date(now);
+  return a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth()
+      && a.getDate() === b.getDate();
+}
+
 function computeStats(answers: Record<string, AnswerRecord>): ProgressStats {
   const records = Object.values(answers);
   if (records.length === 0) {
-    return { totalAnswered: 0, correctCount: 0, avgScore: 0, lastExamId: null, lastQuestionNumber: null, topicAccuracy: {} };
+    return { totalAnswered: 0, todayAnswered: 0, correctCount: 0, avgScore: 0, lastExamId: null, lastQuestionNumber: null, topicAccuracy: {} };
   }
   const correctCount = records.filter(r => r.correct).length;
+  const todayAnswered = records.filter(r => isSameLocalDay(r.updatedAt)).length;
   const last = records.reduce((a, b) => (a.updatedAt > b.updatedAt ? a : b));
   return {
     totalAnswered: records.length,
+    todayAnswered,
     correctCount,
     avgScore: Math.round((correctCount / records.length) * 100),
     lastExamId: last.examId,
@@ -36,6 +46,18 @@ interface ProgressState {
   stats: ProgressStats;
   hydrate: () => Promise<void>;
   recordAnswer: (examId: number, questionNumber: number, picked: string[], correct: boolean) => Promise<void>;
+}
+
+export function nextUnansweredInExam(
+  answers: Record<string, AnswerRecord>,
+  examId: number,
+  total: number,
+  fromQuestion = 1
+): number | null {
+  for (let q = fromQuestion; q <= total; q++) {
+    if (!answers[`${examId}:${q}`]) return q;
+  }
+  return null;
 }
 
 export const useProgressStore = create<ProgressState>((set, get) => ({

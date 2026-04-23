@@ -1,5 +1,5 @@
 export { useQuizStore } from './quiz-store.js';
-export { useProgressStore } from './progress-store.js';
+export { useProgressStore, nextUnansweredInExam } from './progress-store.js';
 export type { ProgressStats } from './progress-store.js';
 export { useSettingsStore } from './settings-store.js';
 export { useStreakStore } from './streak-store.js';

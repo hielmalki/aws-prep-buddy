@@ -2,9 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Question } from '@aws-prep/content';
-import { gradeAnswer } from '@aws-prep/core';
+import { gradeAnswer, nextUnansweredInExam, useProgressStore } from '@aws-prep/core';
 import { theme, baseFont, mono, slate700, slate200 } from '@/lib/theme';
-import { useProgressStore } from '@aws-prep/core';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
 import { BottomNav } from '@/components/ui/BottomNav';
@@ -23,6 +22,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
   const t = theme(dark);
   const router = useRouter();
   const recordAnswer = useProgressStore(s => s.recordAnswer);
+  const answers = useProgressStore(s => s.answers);
 
   const [picked, setPicked] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -49,8 +49,8 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
   };
 
   const goNext = () => {
-    const next = questionNum + 1;
-    if (next > total) {
+    const next = nextUnansweredInExam(answers, examId, total, questionNum + 1);
+    if (next === null) {
       router.push('/');
     } else {
       router.push(`/quiz?exam=${examId}&q=${next}`);
@@ -184,7 +184,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
             }}>{isMulti ? `${picked.length}/${question.correctLetters.length} selected · Check` : 'Check answer'}</button>
           ) : (
             <button onClick={goNext} style={{ width: '100%', height: 52, borderRadius: 14, border: 'none', background: t.text, color: t.bg, fontSize: 15, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              {questionNum < total ? <>Next question <Chevron size={18} color={t.bg}/></> : 'Exam complete →'}
+              {nextUnansweredInExam(answers, examId, total, questionNum + 1) !== null ? <>Next question <Chevron size={18} color={t.bg}/></> : 'Exam complete →'}
             </button>
           )}
         </div>

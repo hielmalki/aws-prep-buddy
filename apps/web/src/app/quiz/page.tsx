@@ -16,5 +16,5 @@ export default async function QuizPage({ searchParams }: Props) {
 
   const total = getExamLength(examId);
 
-  return <QuizScreen question={question} examId={examId} questionNum={questionNum} total={total}/>;
+  return <QuizScreen key={`${examId}-${questionNum}`} question={question} examId={examId} questionNum={questionNum} total={total}/>;
 }

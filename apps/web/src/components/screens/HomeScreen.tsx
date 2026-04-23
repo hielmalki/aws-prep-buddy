@@ -1,7 +1,8 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { theme, baseFont, slate700, slate200 } from '@/lib/theme';
-import { useProgressStore, useStreakStore } from '@aws-prep/core';
+import { useProgressStore, useStreakStore, nextUnansweredInExam } from '@aws-prep/core';
+import { getExamLength } from '@/lib/data';
 import { AnimatedProgressRing } from '@/components/ui/ProgressRing';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
@@ -18,15 +19,19 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const progressStats = useProgressStore(s => s.stats);
+  const answers = useProgressStore(s => s.answers);
   const streakDays = useStreakStore(s => s.currentStreak);
   const stats = { ...progressStats, streakDays };
   const [tutorOpen, setTutorOpen] = useState(false);
 
-  const todayAnswered = 0; // placeholder — would need timestamp filter in useProgress
-  const progressPct = stats.totalAnswered === 0 ? 0 : Math.min(100, Math.round(stats.avgScore));
+  const todayAnswered = progressStats.todayAnswered;
+  const progressPct = Math.min(100, Math.round((todayAnswered / DAILY_GOAL) * 100));
 
   const continueExamId = stats.lastExamId ?? 1;
-  const continueQ = stats.lastQuestionNumber ?? 1;
+  const examTotal = getExamLength(continueExamId);
+  const continueQ = nextUnansweredInExam(answers, continueExamId, examTotal) ?? 1;
+  const examAnswered = Object.values(answers).filter(a => a.examId === continueExamId).length;
+  const examPct = examTotal > 0 ? Math.round((examAnswered / examTotal) * 100) : 0;
 
   return (
     <>
@@ -52,7 +57,7 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
             padding: 18, display: 'flex', alignItems: 'center', gap: 16,
             boxShadow: dark ? 'none' : '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04)',
           }}>
-            <AnimatedProgressRing targetPct={progressPct} t={t}/>
+            <AnimatedProgressRing targetPct={progressPct} current={todayAnswered} target={DAILY_GOAL} t={t}/>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, background: 'rgba(255,153,0,0.14)', color: t.accent, fontSize: 11, fontWeight: 700, letterSpacing: 0.3 }}>
                 <Flame size={12} color={t.accent}/> {stats.streakDays} DAY STREAK
@@ -61,7 +66,9 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
               <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
                 {stats.totalAnswered === 0
                   ? 'Start your first quiz 🚀'
-                  : `${Math.max(0, DAILY_GOAL - todayAnswered)} questions to go 🔥`}
+                  : todayAnswered >= DAILY_GOAL
+                    ? 'Daily goal reached 🎉'
+                    : `${DAILY_GOAL - todayAnswered} questions to go 🔥`}
               </div>
             </div>
           </div>
@@ -89,11 +96,11 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
                   </div>
                 </div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: t.accent, letterSpacing: -0.5 }}>
-                  {stats.avgScore > 0 ? `${stats.avgScore}%` : '—'}
+                  {examAnswered > 0 ? `${examPct}%` : '—'}
                 </div>
               </div>
               <div style={{ marginTop: 12 }}>
-                <ProgressBar pct={stats.avgScore} t={t}/>
+                <ProgressBar pct={examPct} t={t}/>
               </div>
             </div>
           </button>
@@ -131,7 +138,7 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
           <div style={{ marginTop: 24, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             {[
               { l: 'Avg Score', v: stats.totalAnswered > 0 ? `${stats.avgScore}%` : '—', Icon: Trophy, c: t.accent },
-              { l: 'Questions', v: String(stats.totalAnswered),                           Icon: Quiz,   c: t.text },
+              { l: 'Answered',  v: String(stats.totalAnswered),                            Icon: Quiz,   c: t.text },
               { l: 'Streak',    v: `${stats.streakDays}d`,                                Icon: Flame,  c: t.text },
             ].map(s => (
               <div key={s.l} style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 14, padding: '12px 12px' }}>

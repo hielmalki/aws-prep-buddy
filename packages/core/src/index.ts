@@ -13,6 +13,7 @@ export { FEATURES } from './features.js';
 export {
   useQuizStore,
   useProgressStore,
+  nextUnansweredInExam,
   useSettingsStore,
   useStreakStore,
   setStorageAdapter,
