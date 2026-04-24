@@ -1,7 +1,7 @@
 export { useQuizStore } from './quiz-store.js';
-export { useProgressStore, nextUnansweredInExam } from './progress-store.js';
-export type { ProgressStats } from './progress-store.js';
-export { useSettingsStore } from './settings-store.js';
+export { useProgressStore, nextUnansweredInExam, wrongQuestionNumbersInExam, examProgress } from './progress-store.js';
+export type { ProgressStats, ExamProgress } from './progress-store.js';
+export { useSettingsStore, DEFAULT_DAILY_GOAL } from './settings-store.js';
 export { useStreakStore } from './streak-store.js';
 export { setStorageAdapter, getStorageAdapter } from './adapter.js';
 export type { StorageAdapter } from './adapter.js';

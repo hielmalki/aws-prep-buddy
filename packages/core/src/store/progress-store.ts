@@ -60,6 +60,39 @@ export function nextUnansweredInExam(
   return null;
 }
 
+export function wrongQuestionNumbersInExam(
+  answers: Record<string, AnswerRecord>,
+  examId: number,
+  total: number
+): number[] {
+  const wrong: number[] = [];
+  for (let q = 1; q <= total; q++) {
+    const r = answers[`${examId}:${q}`];
+    if (r && !r.correct) wrong.push(q);
+  }
+  return wrong;
+}
+
+export interface ExamProgress {
+  answered: number;
+  correct: number;
+  wrong: number;
+  complete: boolean;
+}
+
+export function examProgress(
+  answers: Record<string, AnswerRecord>,
+  examId: number,
+  total: number
+): ExamProgress {
+  let answered = 0, correct = 0;
+  for (let q = 1; q <= total; q++) {
+    const r = answers[`${examId}:${q}`];
+    if (r) { answered++; if (r.correct) correct++; }
+  }
+  return { answered, correct, wrong: answered - correct, complete: answered === total };
+}
+
 export const useProgressStore = create<ProgressState>((set, get) => ({
   userId: 'local',
   answers: {},

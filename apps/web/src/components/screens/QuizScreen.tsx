@@ -8,7 +8,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Chip } from '@/components/ui/Chip';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { TutorSheet } from './TutorSheet';
-import { Close, Sparkle, Chevron, ChevronDown, Check, X } from '@/components/icons';
+import { Close, Sparkle, Chevron, ChevronDown, Check, X, Trophy } from '@/components/icons';
 
 interface QuizScreenProps {
   question: Question;
@@ -51,7 +51,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
   const goNext = () => {
     const next = nextUnansweredInExam(answers, examId, total, questionNum + 1);
     if (next === null) {
-      router.push('/');
+      router.push(`/quiz/result?exam=${examId}`);
     } else {
       router.push(`/quiz?exam=${examId}&q=${next}`);
     }
@@ -184,7 +184,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
             }}>{isMulti ? `${picked.length}/${question.correctLetters.length} selected · Check` : 'Check answer'}</button>
           ) : (
             <button onClick={goNext} style={{ width: '100%', height: 52, borderRadius: 14, border: 'none', background: t.text, color: t.bg, fontSize: 15, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              {nextUnansweredInExam(answers, examId, total, questionNum + 1) !== null ? <>Next question <Chevron size={18} color={t.bg}/></> : 'Exam complete →'}
+              {nextUnansweredInExam(answers, examId, total, questionNum + 1) !== null ? <>Next question <Chevron size={18} color={t.bg}/></> : <>See results <Trophy size={18} color={t.bg}/></>}
             </button>
           )}
         </div>

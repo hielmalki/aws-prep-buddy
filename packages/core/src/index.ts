@@ -14,7 +14,10 @@ export {
   useQuizStore,
   useProgressStore,
   nextUnansweredInExam,
+  wrongQuestionNumbersInExam,
+  examProgress,
   useSettingsStore,
+  DEFAULT_DAILY_GOAL,
   useStreakStore,
   setStorageAdapter,
   getStorageAdapter,
@@ -24,6 +27,7 @@ export {
 export type {
   StorageAdapter,
   ProgressStats,
+  ExamProgress,
   AnswerRecord,
   SessionRecord,
   SettingsRecord,

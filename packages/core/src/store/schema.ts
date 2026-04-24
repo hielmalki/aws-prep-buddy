@@ -21,6 +21,7 @@ export interface SettingsRecord {
   userId: string;
   theme: 'light' | 'dark' | 'system';
   llmProvider: 'anthropic' | 'openai';
+  dailyGoal: number;
   updatedAt: number;
 }
 

@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { theme, baseFont, slate700, slate200 } from '@/lib/theme';
-import { useProgressStore, useStreakStore, nextUnansweredInExam } from '@aws-prep/core';
+import { useProgressStore, useStreakStore, useSettingsStore, nextUnansweredInExam } from '@aws-prep/core';
 import { getExamLength } from '@/lib/data';
 import { AnimatedProgressRing } from '@/components/ui/ProgressRing';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -13,19 +13,18 @@ import { Flame, Target, Bolt, Sparkle, Chevron, Sun, Moon, Clock, Trophy, Quiz }
 
 interface HomeScreenProps { dark: boolean; onToggleDark: () => void; }
 
-const DAILY_GOAL = 10;
-
 export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const progressStats = useProgressStore(s => s.stats);
   const answers = useProgressStore(s => s.answers);
   const streakDays = useStreakStore(s => s.currentStreak);
+  const dailyGoal = useSettingsStore(s => s.dailyGoal);
   const stats = { ...progressStats, streakDays };
   const [tutorOpen, setTutorOpen] = useState(false);
 
   const todayAnswered = progressStats.todayAnswered;
-  const progressPct = Math.min(100, Math.round((todayAnswered / DAILY_GOAL) * 100));
+  const progressPct = Math.min(100, Math.round((todayAnswered / dailyGoal) * 100));
 
   const continueExamId = stats.lastExamId ?? 1;
   const examTotal = getExamLength(continueExamId);
@@ -57,7 +56,7 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
             padding: 18, display: 'flex', alignItems: 'center', gap: 16,
             boxShadow: dark ? 'none' : '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04)',
           }}>
-            <AnimatedProgressRing targetPct={progressPct} current={todayAnswered} target={DAILY_GOAL} t={t}/>
+            <AnimatedProgressRing targetPct={progressPct} current={todayAnswered} target={dailyGoal} t={t}/>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, background: 'rgba(255,153,0,0.14)', color: t.accent, fontSize: 11, fontWeight: 700, letterSpacing: 0.3 }}>
                 <Flame size={12} color={t.accent}/> {stats.streakDays} DAY STREAK
@@ -66,9 +65,9 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
               <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>
                 {stats.totalAnswered === 0
                   ? 'Start your first quiz 🚀'
-                  : todayAnswered >= DAILY_GOAL
+                  : todayAnswered >= dailyGoal
                     ? 'Daily goal reached 🎉'
-                    : `${DAILY_GOAL - todayAnswered} questions to go 🔥`}
+                    : `${dailyGoal - todayAnswered} questions to go 🔥`}
               </div>
             </div>
           </div>

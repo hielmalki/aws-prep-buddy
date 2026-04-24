@@ -1,8 +1,5 @@
-'use client';
-import { useState } from 'react';
-import { LearnScreen } from '@/components/screens/LearnScreen';
+import { LearnIndexScreen } from '@/components/screens/LearnIndexScreen';
 
 export default function LearnPage() {
-  const [dark] = useState(true);
-  return <LearnScreen dark={dark}/>;
+  return <LearnIndexScreen />;
 }
