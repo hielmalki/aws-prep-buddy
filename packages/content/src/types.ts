@@ -18,9 +18,17 @@ export interface Exam {
   questions: Question[];
 }
 
+export type SectionBlock =
+  | { type: 'heading'; level: number; text: string }
+  | { type: 'paragraph'; text: string }
+  | { type: 'code'; language?: string; text: string }
+  | { type: 'list'; ordered: boolean; items: string[] }
+  | { type: 'blockquote'; text: string };
+
 export interface Section {
   slug: string;
   title: string;
   body: string;
+  blocks: SectionBlock[];
   topics: string[];
 }

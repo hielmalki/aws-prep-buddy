@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { LEARN_MODULES } from '@aws-prep/content';
 import type { LearnModule } from '@aws-prep/content';
+import { useProgressStore } from '@aws-prep/core';
 import { theme, baseFont } from '@/lib/theme';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { Chevron, Server, Shield, Database, DollarSign, Globe, Cloud, Layers, Bolt, Book, Settings, Target } from '@/components/icons';
@@ -25,11 +26,43 @@ function ModuleIcon({ icon, size, color }: { icon: LearnModule['icon']; size: nu
   }
 }
 
+function computeModuleAccuracy(
+  topicAccuracy: Record<string, { correct: number; total: number }>,
+  topicTags: string[]
+): number | null {
+  if (topicTags.length === 0) return null;
+  let correct = 0, total = 0;
+  for (const tag of topicTags) {
+    const entry = topicAccuracy[tag];
+    if (entry) { correct += entry.correct; total += entry.total; }
+  }
+  return total === 0 ? null : Math.round((correct / total) * 100);
+}
+
+interface AccuracyBadgeProps {
+  pct: number | null;
+  dark: boolean;
+}
+
+function AccuracyBadge({ pct, dark }: AccuracyBadgeProps) {
+  if (pct === null) return null;
+  const t = theme(dark);
+  const color = pct >= 80 ? t.green : pct >= 60 ? '#F59E0B' : t.red;
+  const label = pct >= 80 ? 'Strong' : pct >= 60 ? 'Getting there' : 'Needs practice';
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+      <span style={{ width: 6, height: 6, borderRadius: 3, background: color, display: 'inline-block', flexShrink: 0 }}/>
+      <span style={{ fontSize: 11, fontWeight: 600, color }}>{pct}% · {label}</span>
+    </div>
+  );
+}
+
 const VISIBLE_MODULES = LEARN_MODULES.filter(m => m.slug !== 'other');
 
 export function LearnIndexScreen({ dark = true }: LearnIndexScreenProps) {
   const t = theme(dark);
   const router = useRouter();
+  const topicAccuracy = useProgressStore(s => s.stats.topicAccuracy);
 
   return (
     <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
@@ -39,34 +72,38 @@ export function LearnIndexScreen({ dark = true }: LearnIndexScreenProps) {
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '4px 20px 120px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {VISIBLE_MODULES.map((mod, idx) => (
-          <button
-            key={mod.slug}
-            onClick={() => router.push(`/learn/${mod.slug}`)}
-            style={{
-              textAlign: 'left', padding: '14px 16px', borderRadius: 16,
-              background: t.surface, border: `1px solid ${t.border}`,
-              cursor: 'pointer', fontFamily: baseFont, color: t.text,
-              display: 'flex', alignItems: 'center', gap: 14,
-            }}
-          >
-            <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ModuleIcon icon={mod.icon} size={22} color={t.accent} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: t.textMuted, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 2 }}>
-                Module {idx + 1}
+        {VISIBLE_MODULES.map((mod, idx) => {
+          const pct = computeModuleAccuracy(topicAccuracy, mod.topicTags);
+          return (
+            <button
+              key={mod.slug}
+              onClick={() => router.push(`/learn/${mod.slug}`)}
+              style={{
+                textAlign: 'left', padding: '14px 16px', borderRadius: 16,
+                background: t.surface, border: `1px solid ${t.border}`,
+                cursor: 'pointer', fontFamily: baseFont, color: t.text,
+                display: 'flex', alignItems: 'center', gap: 14,
+              }}
+            >
+              <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ModuleIcon icon={mod.icon} size={22} color={t.accent} />
               </div>
-              <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>{mod.title}</div>
-              <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {mod.subTopics.slice(0, 2).join(' · ')}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: t.textMuted, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 2 }}>
+                  Module {idx + 1}
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>{mod.title}</div>
+                <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                  {mod.subTopics.slice(0, 2).join(' · ')}
+                </div>
+                <AccuracyBadge pct={pct} dark={dark} />
               </div>
-            </div>
-            <div style={{ flexShrink: 0, opacity: 0.4 }}>
-              <Chevron size={16} color={t.text} />
-            </div>
-          </button>
-        ))}
+              <div style={{ flexShrink: 0, opacity: 0.4 }}>
+                <Chevron size={16} color={t.text} />
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       <BottomNav active="learn" t={t} />

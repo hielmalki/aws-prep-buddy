@@ -1,4 +1,4 @@
-import type { Question, Section } from '@aws-prep/content';
+import type { Question, Section, LearnModule } from '@aws-prep/content';
 import rawQuestions from '@/data/exams.json';
 import rawSections from '@/data/sections.json';
 
@@ -27,6 +27,13 @@ export function getSections(): Section[] {
 
 export function getSection(slug: string): Section | undefined {
   return allSections.find(s => s.slug === slug);
+}
+
+export function getSectionsForModule(mod: LearnModule): Section[] {
+  const all = getSections();
+  return mod.sectionSlugs
+    .map(slug => all.find(s => s.slug === slug))
+    .filter((s): s is Section => s !== undefined);
 }
 
 export const EXAM_COUNT = 23;
