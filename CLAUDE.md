@@ -98,3 +98,6 @@ Auth/SRS/Cloud-Sync are intentionally stubbed (`userId="local"`, SRS is a no-op,
 ANTHROPIC_API_KEY=...
 OPENAI_API_KEY=...
 ```
+
+## Coding
+- never code with model opus. Coding is only allowed with sonnet
