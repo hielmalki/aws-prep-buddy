@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getQuestion, getExamLength } from '@/lib/data';
 import { QuizScreen } from '@/components/screens/QuizScreen';
+import { ExamListScreen } from '@/components/screens/ExamListScreen';
 
 interface Props {
   searchParams: Promise<{ exam?: string; q?: string }>;
@@ -8,7 +9,12 @@ interface Props {
 
 export default async function QuizPage({ searchParams }: Props) {
   const { exam, q } = await searchParams;
-  const examId = Math.max(1, Math.min(23, Number(exam ?? 1) || 1));
+
+  if (!exam) {
+    return <ExamListScreen />;
+  }
+
+  const examId = Math.max(1, Math.min(23, Number(exam) || 1));
   const questionNum = Math.max(1, Number(q ?? 1) || 1);
 
   const question = getQuestion(examId, questionNum);
