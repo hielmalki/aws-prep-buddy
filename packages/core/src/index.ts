@@ -8,7 +8,8 @@ export {
   isSessionComplete,
   getSessionScore,
 } from './quiz-engine.js';
-export { recordAnswer as recordSrsAnswer } from './srs.js';
+export { applyReview } from './srs.js';
+export type { ReviewQuality } from './srs.js';
 export { FEATURES } from './features.js';
 export {
   useQuizStore,
@@ -23,6 +24,9 @@ export {
   getStorageAdapter,
   computeNextStreak,
   todayString,
+  useFlashcardStore,
+  dueCardsForDeck,
+  totalCardsForDeck,
 } from './store/index.js';
 export type {
   StorageAdapter,
@@ -32,4 +36,6 @@ export type {
   SessionRecord,
   SettingsRecord,
   StreakRecord,
+  FlashcardDeckRecord,
+  FlashcardRecord,
 } from './store/index.js';

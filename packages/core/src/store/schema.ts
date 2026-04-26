@@ -32,3 +32,31 @@ export interface StreakRecord {
   longestStreak: number;
   updatedAt: number;
 }
+
+export interface FlashcardDeckRecord {
+  userId: string;
+  deckId: string;
+  name: string;
+  description?: string;
+  isAuto: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface FlashcardRecord {
+  userId: string;
+  cardId: string;
+  deckId: string;
+  front: string;
+  back: string;
+  tags: string[];
+  source?: { type: 'wrong-answer'; examId: number; questionNumber: number };
+  easeFactor: number;
+  interval: number;
+  repetitions: number;
+  lapses: number;
+  dueAt: number;
+  lastReviewedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+}

@@ -39,6 +39,60 @@ export function LearnIndexScreen({ dark = true }: LearnIndexScreenProps) {
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '4px 20px 120px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Flashcards card */}
+        <button
+          onClick={() => router.push('/flashcards')}
+          style={{
+            textAlign: 'left', padding: '14px 16px', borderRadius: 16,
+            background: t.surface, border: `1px solid rgba(255,153,0,0.45)`,
+            cursor: 'pointer', fontFamily: baseFont, color: t.text,
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}
+        >
+          <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: 'rgba(255,153,0,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+            🃏
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: t.accent, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 2 }}>
+              Anki-Style · SM-2
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>Flashcards</div>
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3 }}>
+              Anki-Style · Wiederholen mit SM-2
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, opacity: 0.4 }}>
+            <Chevron size={16} color={t.text} />
+          </div>
+        </button>
+
+        {/* Mindmap card */}
+        <button
+          onClick={() => router.push('/learn/mindmap')}
+          style={{
+            textAlign: 'left', padding: '14px 16px', borderRadius: 16,
+            background: t.surface, border: `1px solid ${t.accent}`,
+            cursor: 'pointer', fontFamily: baseFont, color: t.text,
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}
+        >
+          <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+            🗺️
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: t.accent, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 2 }}>
+              Übersicht
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.3 }}>AWS-Service-Mindmap</div>
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 3 }}>
+              Visuelle Übersicht aller Services
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, opacity: 0.4 }}>
+            <Chevron size={16} color={t.text} />
+          </div>
+        </button>
+
         {VISIBLE_MODULES.map((mod, idx) => (
           <button
             key={mod.slug}

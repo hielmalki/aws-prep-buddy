@@ -3,13 +3,13 @@ import { Theme, baseFont } from '@/lib/theme';
 import { Home, Book, Quiz, Settings } from '@/components/icons';
 import Link from 'next/link';
 
-type NavId = 'home' | 'learn' | 'quiz' | 'settings';
+export type NavId = 'home' | 'learn' | 'quiz' | 'settings';
 
 const items: { id: NavId; label: string; href: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
-  { id: 'home',     label: 'Home',     href: '/',         Icon: Home },
-  { id: 'learn',    label: 'Learn',    href: '/learn',    Icon: Book },
-  { id: 'quiz',     label: 'Quiz',     href: '/quiz',     Icon: Quiz },
-  { id: 'settings', label: 'Du',       href: '/settings', Icon: Settings },
+  { id: 'home',     label: 'Home',    href: '/',           Icon: Home },
+  { id: 'learn',    label: 'Learn',   href: '/learn',      Icon: Book },
+  { id: 'quiz',     label: 'Quiz',    href: '/quiz',       Icon: Quiz },
+  { id: 'settings', label: 'Du',      href: '/settings',   Icon: Settings },
 ];
 
 interface BottomNavProps { active: NavId; t: Theme; }

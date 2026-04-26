@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { setStorageAdapter } from '@aws-prep/core';
-import type { StorageAdapter, AnswerRecord, SessionRecord, SettingsRecord, StreakRecord } from '@aws-prep/core';
+import type { StorageAdapter, AnswerRecord, SessionRecord, SettingsRecord, StreakRecord, FlashcardDeckRecord, FlashcardRecord } from '@aws-prep/core';
 
 type AnyRecord = { userId: string; updatedAt: number };
 
@@ -9,6 +9,8 @@ class AppDatabase extends Dexie {
   sessions!: Table<SessionRecord & { _key: string }>;
   settings!: Table<SettingsRecord & { _key: string }>;
   streak!: Table<StreakRecord & { _key: string }>;
+  flashcardDecks!: Table<FlashcardDeckRecord & { _key: string }>;
+  flashcards!: Table<FlashcardRecord & { _key: string }>;
 
   constructor() {
     super('aws-prep-db');
@@ -17,6 +19,14 @@ class AppDatabase extends Dexie {
       sessions: '_key, userId, updatedAt',
       settings: '_key, userId',
       streak: '_key, userId',
+    });
+    this.version(2).stores({
+      answers: '_key, userId, examId, updatedAt',
+      sessions: '_key, userId, updatedAt',
+      settings: '_key, userId',
+      streak: '_key, userId',
+      flashcardDecks: '_key, userId',
+      flashcards: '_key, userId, deckId, dueAt',
     });
   }
 }
@@ -35,6 +45,8 @@ function tableFor(name: string) {
     case 'sessions': return d.sessions;
     case 'settings': return d.settings;
     case 'streak': return d.streak;
+    case 'flashcardDecks': return d.flashcardDecks;
+    case 'flashcards': return d.flashcards;
     default: throw new Error(`Unknown table: ${name}`);
   }
 }
