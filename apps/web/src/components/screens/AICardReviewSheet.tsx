@@ -279,47 +279,62 @@ export function AICardReviewSheet({
         <div style={{
           position: 'absolute', left: 0, right: 0, bottom: 0,
           height: '90%',
-          background: dark ? 'rgba(15,23,42,0.97)' : 'rgba(255,255,255,0.98)',
-          backdropFilter: 'blur(30px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-          border: `1px solid ${t.border}`, borderBottom: 'none',
-          borderRadius: '24px 24px 0 0',
+          background: t.bg,
+          borderTopLeftRadius: 24, borderTopRightRadius: 24,
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.3)',
           color: t.text, fontFamily: baseFont,
           display: 'flex', flexDirection: 'column',
           transform: mounted ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform .35s cubic-bezier(.2,.8,.2,1)',
-          boxShadow: '0 -20px 60px rgba(0,0,0,0.25)',
         }}>
           {/* Grabber */}
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
-            <div style={{ width: 40, height: 5, borderRadius: 3, background: t.borderStrong }} />
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8, paddingBottom: 6 }}>
+            <div style={{ width: 38, height: 4, borderRadius: 2, background: t.borderStrong }} />
           </div>
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', padding: '8px 18px 12px', gap: 10 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 11,
-              background: t.accentSoft,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-              <Sparkle size={20} color={t.accent} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>KI-Karten-Generator</div>
-              <div style={{ fontSize: 12, color: t.textMuted, marginTop: 1 }}>
-                {streaming
-                  ? `Generiere ${items.length} Karten… (${totalArrived}/${items.length})`
-                  : error
-                    ? 'Fehler aufgetreten'
-                    : `${totalArrived} Karten generiert`}
+          <div style={{ padding: '8px 18px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 11,
+                background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                boxShadow: '0 6px 18px rgba(255,153,0,0.35)',
+              }}>
+                <Sparkle size={20} color="#fff" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
+                  {streaming
+                    ? `Karten aus ${items.length} Fehlern generieren`
+                    : error
+                      ? `Karten aus ${items.length} Fehlern generieren`
+                      : `Karten aus ${items.length} Fehlern generieren`}
+                </div>
+                <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  {streaming && (
+                    <span style={{ display: 'inline-flex', gap: 2 }}>
+                      <span style={{ width: 4, height: 4, borderRadius: 2, background: t.accent, animation: 'fcdot 1.2s 0s infinite' }}/>
+                      <span style={{ width: 4, height: 4, borderRadius: 2, background: t.accent, animation: 'fcdot 1.2s .15s infinite' }}/>
+                      <span style={{ width: 4, height: 4, borderRadius: 2, background: t.accent, animation: 'fcdot 1.2s .3s infinite' }}/>
+                    </span>
+                  )}
+                  {streaming
+                    ? `Streaming · ${totalArrived} von ${items.length} Vorschlägen`
+                    : error
+                      ? 'Fehler aufgetreten'
+                      : `${totalArrived} Vorschläge bereit`}
+                </div>
+              </div>
+              <div style={{
+                width: 32, height: 32, borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              }}
+                onClick={() => { abortRef.current?.abort(); onClose(); }}
+              >
+                <Close size={16} color={t.textMuted} />
               </div>
             </div>
-            <button
-              onClick={() => { abortRef.current?.abort(); onClose(); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, padding: 4 }}
-            >
-              <Close size={20} color={t.textMuted} />
-            </button>
           </div>
 
           {/* Error state */}
@@ -330,7 +345,7 @@ export function AICardReviewSheet({
           )}
 
           {/* Card list */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 8px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ flex: 1, overflow: 'auto', padding: '4px 14px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {cards.map((card, idx) =>
               card === null ? (
                 // Skeleton
@@ -355,29 +370,31 @@ export function AICardReviewSheet({
 
           {/* Footer */}
           <div style={{
-            padding: '12px 18px 34px',
+            padding: '12px 18px 24px',
             borderTop: `1px solid ${t.border}`,
-            background: dark ? 'rgba(15,23,42,0.8)' : 'rgba(255,255,255,0.9)',
+            background: t.bg,
+            display: 'flex', flexDirection: 'column', gap: 8,
           }}>
             <button
               onClick={handleSave}
               disabled={streaming || acceptedCount === 0 || saving}
               style={{
-                width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
-                background: (streaming || acceptedCount === 0 || saving)
-                  ? t.border
-                  : `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`,
+                width: '100%', height: 50, borderRadius: 14, border: 'none',
+                background: (streaming || acceptedCount === 0 || saving) ? t.border : t.accent,
                 color: (streaming || acceptedCount === 0 || saving) ? t.textMuted : '#fff',
-                fontFamily: baseFont, fontSize: 15, fontWeight: 700,
+                fontFamily: baseFont, fontSize: 14, fontWeight: 700,
                 cursor: (streaming || acceptedCount === 0 || saving) ? 'default' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: (streaming || acceptedCount === 0 || saving) || dark ? 'none' : '0 8px 24px rgba(255,153,0,0.35)',
                 transition: 'background .2s',
               }}
             >
+              {!(streaming || acceptedCount === 0 || saving) && <Check size={18} color="#fff" />}
               {saving
                 ? 'Speichere…'
                 : streaming
                   ? 'Generiere…'
-                  : `${acceptedCount} ${acceptedCount === 1 ? 'Karte' : 'Karten'} in Deck '${deckName}' speichern`}
+                  : `${acceptedCount} ${acceptedCount === 1 ? 'Karte' : 'Karten'} in „${deckName}" speichern`}
             </button>
           </div>
         </div>
@@ -408,21 +425,19 @@ interface RowProps {
 function SkeletonRow({ dark, t }: RowProps) {
   return (
     <div style={{
-      borderRadius: 14, padding: '14px 14px',
+      borderRadius: 14, padding: 14,
       background: t.surface, border: `1px solid ${t.border}`,
-      display: 'flex', flexDirection: 'column', gap: 8,
+      display: 'flex', flexDirection: 'column', gap: 7,
     }}>
       <div style={{
-        height: 14, borderRadius: 7, width: '70%',
+        height: 12, borderRadius: 6, width: '85%',
         background: dark ? 'rgba(148,163,184,0.12)' : '#F1F5F9',
-        animation: 'pulse 1.5s ease-in-out infinite',
+        backgroundImage: 'linear-gradient(90deg, transparent 0, rgba(255,255,255,0.5) 50%, transparent 100%)',
+        backgroundSize: '200% 100%',
+        animation: 'fcshimmer 1.4s infinite',
       }} />
-      <div style={{
-        height: 12, borderRadius: 6, width: '90%',
-        background: dark ? 'rgba(148,163,184,0.08)' : '#F8FAFC',
-        animation: 'pulse 1.5s ease-in-out infinite',
-      }} />
-      <style>{`@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}`}</style>
+      <div style={{ height: 10, borderRadius: 5, background: dark ? 'rgba(148,163,184,0.08)' : '#F8FAFC', width: '60%' }} />
+      <div style={{ height: 10, borderRadius: 5, background: dark ? 'rgba(148,163,184,0.08)' : '#F8FAFC', width: '70%' }} />
     </div>
   );
 }
@@ -434,110 +449,69 @@ interface CardRowProps extends RowProps {
 }
 
 function CardRow({ card, dark, t, onToggleAccept, onEdit }: CardRowProps) {
+  const isStreaming = !card.back || card.back === '';
   return (
     <div style={{
-      borderRadius: 14, padding: '14px 14px',
-      background: card.accepted ? t.surface : (dark ? 'rgba(15,23,42,0.4)' : '#F8FAFC'),
+      borderRadius: 14, padding: 14,
+      background: t.surface,
       border: `1px solid ${card.accepted ? t.accent + '44' : t.border}`,
-      opacity: card.accepted ? 1 : 0.55,
+      display: 'flex', gap: 10, alignItems: 'flex-start',
+      opacity: isStreaming ? 0.95 : 1,
       transition: 'all .2s',
     }}>
-      {/* Front */}
-      <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.4, marginBottom: 5 }}>
-        {card.front}
-      </div>
-      {/* Back */}
-      <div style={{ fontSize: 13, color: t.textMuted, lineHeight: 1.5, marginBottom: 8 }}>
-        {card.back}
-      </div>
-
-      {/* Tags + warning row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-        {card.tags.map(tag => (
-          <span key={tag} style={{
-            fontSize: 11, fontWeight: 600, color: t.accent,
-            background: t.accentSoft, padding: '3px 8px', borderRadius: 999,
-          }}>
-            #{tag}
-          </span>
-        ))}
-        {card.copyrightWarning && (
-          <span style={{
-            fontSize: 11, fontWeight: 600,
-            color: dark ? '#FBBF24' : '#B45309',
-            background: dark ? 'rgba(251,191,36,0.12)' : '#FFFBEB',
-            padding: '3px 8px', borderRadius: 999, border: `1px solid ${dark ? 'rgba(251,191,36,0.3)' : '#FCD34D'}`,
-          }}>
-            ⚠️ Bitte prüfen
-          </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.35, color: t.text }}>{card.front}</div>
+        {card.back ? (
+          <div style={{ fontSize: 12, color: t.textMuted, marginTop: 5, lineHeight: 1.5 }}>{card.back}</div>
+        ) : (
+          <div style={{ marginTop: 7, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ height: 8, borderRadius: 4, background: dark ? 'rgba(148,163,184,0.16)' : '#F1F5F9', width: '90%', backgroundImage: 'linear-gradient(90deg, transparent 0, rgba(255,153,0,0.3) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'fcshimmer 1.4s infinite' }}/>
+            <div style={{ height: 8, borderRadius: 4, background: dark ? 'rgba(148,163,184,0.10)' : '#F8FAFC', width: '60%' }}/>
+          </div>
+        )}
+        {(card.tags.length > 0 || card.copyrightWarning) && (
+          <div style={{ marginTop: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {card.tags.map(tag => (
+              <span key={tag} style={{
+                fontSize: 10, padding: '2px 7px', borderRadius: 999,
+                background: t.accentSoft, color: t.accent, fontWeight: 600,
+              }}>#{tag}</span>
+            ))}
+            {card.copyrightWarning && (
+              <span style={{
+                fontSize: 10, fontWeight: 600,
+                color: dark ? '#FBBF24' : '#B45309',
+                background: dark ? 'rgba(251,191,36,0.12)' : '#FFFBEB',
+                padding: '2px 7px', borderRadius: 999, border: `1px solid ${dark ? 'rgba(251,191,36,0.3)' : '#FCD34D'}`,
+              }}>⚠️ Bitte prüfen</span>
+            )}
+          </div>
         )}
       </div>
-
-      {/* Action buttons */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <ActionButton
-          label={card.accepted ? '✓' : '↩'}
-          active={card.accepted}
-          color={dark ? '#4ADE80' : '#16A34A'}
-          activeBg={dark ? 'rgba(74,222,128,0.14)' : '#DCFCE7'}
-          t={t}
-          dark={dark}
-          onClick={onToggleAccept}
-          title={card.accepted ? 'Akzeptiert – klicken zum Überspringen' : 'Übersprungen – klicken zum Akzeptieren'}
-        />
-        <ActionButton
-          label={<Edit size={13} color={t.textMuted} />}
-          active={false}
-          color={t.textMuted}
-          activeBg={t.surface}
-          t={t}
-          dark={dark}
-          onClick={onEdit}
-          title="Bearbeiten"
-        />
-        <ActionButton
-          label={<X size={13} color={dark ? '#F87171' : '#DC2626'} />}
-          active={!card.accepted}
-          color={dark ? '#F87171' : '#DC2626'}
-          activeBg={dark ? 'rgba(248,113,113,0.12)' : '#FEF2F2'}
-          t={t}
-          dark={dark}
-          onClick={card.accepted ? onToggleAccept : onToggleAccept}
-          title="Überspringen"
-        />
+      {/* Vertical action stack */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+        {isStreaming ? (
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 14, height: 14, borderRadius: 7, border: `2px solid ${t.accent}`, borderTopColor: 'transparent', animation: 'fcspin 0.8s linear infinite' }}/>
+          </div>
+        ) : (
+          <>
+            <button onClick={onToggleAccept} title={card.accepted ? 'Akzeptiert – klicken zum Überspringen' : 'Übersprungen – klicken zum Akzeptieren'}
+              style={{ width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer', background: t.greenSoft, color: t.green, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: card.accepted ? 1 : 0.4 }}>
+              <Check size={15} color={t.green}/>
+            </button>
+            <button onClick={onEdit} title="Bearbeiten"
+              style={{ width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer', background: t.bg2, color: t.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Edit size={13} color={t.textMuted}/>
+            </button>
+            <button onClick={onToggleAccept} title="Überspringen"
+              style={{ width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer', background: t.redSoft, color: t.red, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: !card.accepted ? 1 : 0.4 }}>
+              <X size={14} color={t.red}/>
+            </button>
+          </>
+        )}
       </div>
     </div>
-  );
-}
-
-interface ActionButtonProps {
-  label: React.ReactNode;
-  active: boolean;
-  color: string;
-  activeBg: string;
-  t: ReturnType<typeof theme>;
-  dark: boolean;
-  onClick(): void;
-  title?: string;
-}
-
-function ActionButton({ label, active, color, activeBg, t, onClick, title }: ActionButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 32, height: 28, borderRadius: 8,
-        border: `1px solid ${active ? color + '44' : t.border}`,
-        background: active ? activeBg : 'transparent',
-        color: active ? color : t.textMuted,
-        cursor: 'pointer', fontSize: 12, fontWeight: 700, fontFamily: baseFont,
-        transition: 'all .15s',
-      }}
-    >
-      {label}
-    </button>
   );
 }
 

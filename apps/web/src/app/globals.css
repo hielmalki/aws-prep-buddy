@@ -47,3 +47,17 @@ a:focus-visible,
 .fade-in {
   animation: fadeIn .4s ease both;
 }
+
+@keyframes fcshimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fcspin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fcdot {
+  0%, 60%, 100% { opacity: 0.3; }
+  30%            { opacity: 1; }
+}

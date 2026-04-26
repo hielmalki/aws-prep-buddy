@@ -11,7 +11,6 @@ import {
 } from '@aws-prep/core';
 import { getExamLength, EXAM_COUNT } from '@/lib/data';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { CardEditorSheet } from '@/components/ui/CardEditorSheet';
 import { AICardReviewSheet, type AICardItem } from '@/components/screens/AICardReviewSheet';
 import { Flame, Sparkle, Chevron, Cards, Plus, Check } from '@/components/icons';
 
@@ -255,11 +254,9 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
   const cards = useFlashcardStore(s => s.cards);
   const hydrated = useFlashcardStore(s => s.hydrated);
 
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [aiSheetOpen, setAiSheetOpen] = useState(false);
-  const [aiItems, setAiItems] = useState<AICardItem[]>([]);
+  const [aiItems] = useState<AICardItem[]>([]);
   const [newDeckOpen, setNewDeckOpen] = useState(false);
-  const [editorState, setEditorState] = useState<{ open: boolean; deckId: string }>({ open: false, deckId: '' });
 
   useEffect(() => {
     const store = useFlashcardStore.getState();
@@ -280,8 +277,8 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
 
   if (!hydrated) {
     return (
-      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
-        <div style={{ padding: '64px 20px 14px' }}>
+      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
+        <div style={{ padding: '60px 20px 14px' }}>
           <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Wiederholen</div>
           <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.6, marginTop: 2 }}>Flashcards</div>
         </div>
@@ -297,9 +294,9 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
 
   return (
     <>
-      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
+      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
         {/* Header */}
-        <div style={{ padding: '64px 20px 14px' }}>
+        <div style={{ padding: '60px 20px 14px' }}>
           <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Wiederholen</div>
           <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.6, marginTop: 2 }}>Flashcards</div>
           <div style={{ fontSize: 13, color: t.textMuted, marginTop: 4 }}>
@@ -309,7 +306,7 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '0 20px 120px' }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: '0 20px 110px' }}>
 
           {/* Auto-Deck "Meine Fehler" */}
           <div style={{
@@ -375,7 +372,7 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
               <Sparkle size={18} color={t.accent}/>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>✨ Aus Fehlern generieren</div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Aus deinen 5 letzten Fehlern generieren</div>
               <div style={{ fontSize: 11, color: t.textMuted, marginTop: 1 }}>KI erstellt Karten · ~10 sek</div>
             </div>
             <Chevron size={16} color={t.textMuted}/>
@@ -396,8 +393,6 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
               const total = totalCardsForDeck(cards, d.deckId);
               const due = dueCardsForDeck(cards, d.deckId, now).length;
               const color = deckColors[idx % deckColors.length];
-              const greenColor = dark ? '#4ADE80' : '#16A34A';
-              const greenSoft = dark ? 'rgba(74,222,128,0.14)' : '#DCFCE7';
               return (
                 <div key={d.deckId} style={{
                   background: t.surface, border: `1px solid ${t.border}`,
@@ -419,15 +414,8 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
                   {due > 0 ? (
                     <div style={{ padding: '4px 9px', borderRadius: 999, background: t.accentSoft, color: t.accent, fontSize: 11, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{due} fällig</div>
                   ) : (
-                    <div style={{ padding: '4px 9px', borderRadius: 999, background: greenSoft, color: greenColor, fontSize: 11, fontWeight: 700 }}>✓ aktuell</div>
+                    <div style={{ padding: '4px 9px', borderRadius: 999, background: t.greenSoft, color: t.green, fontSize: 11, fontWeight: 700 }}>✓ aktuell</div>
                   )}
-                  <button
-                    onClick={() => setEditorState({ open: true, deckId: d.deckId })}
-                    title="Karte hinzufügen"
-                    style={{ width: 32, height: 32, borderRadius: 10, border: `1px solid ${t.border}`, background: 'transparent', color: t.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    <Plus size={15} color={t.textMuted}/>
-                  </button>
                   <button
                     onClick={() => router.push(`/flashcards/review?deck=${d.deckId}`)}
                     style={{ width: 32, height: 32, borderRadius: 10, border: `1px solid ${t.border}`, background: 'transparent', color: t.textMuted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -461,7 +449,6 @@ export function FlashcardsScreen({ dark = true }: FlashcardsScreenProps) {
 
       <AICardReviewSheet dark={dark} open={aiSheetOpen} onClose={() => setAiSheetOpen(false)} items={aiItems} deckId="mistakes" deckName="Mistakes"/>
       <NewDeckModal dark={dark} open={newDeckOpen} onClose={() => setNewDeckOpen(false)}/>
-      <CardEditorSheet dark={dark} open={editorState.open} deckId={editorState.deckId} onClose={() => setEditorState({ open: false, deckId: '' })}/>
     </>
   );
 }
