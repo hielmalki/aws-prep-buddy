@@ -5,7 +5,7 @@ import { theme, baseFont } from '@/lib/theme';
 import { useFlashcardStore, dueCardsForDeck, applyReview } from '@aws-prep/core';
 import type { ReviewQuality, FlashcardRecord } from '@aws-prep/core';
 import { CardEditorSheet } from '@/components/ui/CardEditorSheet';
-import { Back, Check, Flip, Edit } from '@/components/icons';
+import { Back, Check, Flip, Edit, Close } from '@/components/icons';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 
 interface FlashcardReviewScreenProps {
@@ -59,14 +59,11 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
   const total = sessionCards.length;
   const progress = total > 0 ? Math.round((currentIdx / total) * 100) : 0;
 
-  const blue = dark ? '#60A5FA' : '#2563EB';
-  const blueSoft = dark ? 'rgba(96,165,250,0.18)' : '#DBEAFE';
-
-  const srsButtons: { quality: ReviewQuality; label: string; color: string; bg: string }[] = currentCard ? [
-    { quality: 'again', label: 'Again', color: t.red,   bg: dark ? 'rgba(248,113,113,0.18)' : '#FEE2E2' },
-    { quality: 'hard',  label: 'Hard',  color: t.accent, bg: dark ? 'rgba(255,153,0,0.18)'  : '#FFEDD5' },
-    { quality: 'good',  label: 'Good',  color: t.green,  bg: dark ? 'rgba(74,222,128,0.18)' : '#DCFCE7' },
-    { quality: 'easy',  label: 'Easy',  color: blue,     bg: blueSoft },
+  const srsButtons: { quality: ReviewQuality; label: string; color: string; bg: string; shadow: string }[] = currentCard ? [
+    { quality: 'again', label: 'Again', color: t.red,    bg: dark ? 'rgba(248,113,113,0.18)' : '#FEE2E2', shadow: 'rgba(220,38,38,0.35)' },
+    { quality: 'hard',  label: 'Hard',  color: t.accent, bg: dark ? 'rgba(255,153,0,0.18)'  : '#FFEDD5', shadow: 'rgba(255,153,0,0.35)' },
+    { quality: 'good',  label: 'Good',  color: t.green,  bg: dark ? 'rgba(74,222,128,0.18)' : '#DCFCE7', shadow: 'rgba(22,163,74,0.35)' },
+    { quality: 'easy',  label: 'Easy',  color: t.blue,   bg: t.blueSoft,                                  shadow: 'rgba(37,99,235,0.35)' },
   ] : [];
 
   async function handleReview(quality: ReviewQuality) {
@@ -79,8 +76,8 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
   // Loading skeleton
   if (!hydrated) {
     return (
-      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text }}>
-        <div style={{ padding: '64px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text }}>
+        <div style={{ padding: '60px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: t.surface, border: `1px solid ${t.border}` }}/>
           <div style={{ height: 14, width: 120, borderRadius: 8, background: t.surface }}/>
         </div>
@@ -91,11 +88,11 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
   // Empty / done state
   if (!currentCard || currentIdx >= total) {
     return (
-      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text }}>
-        <div style={{ padding: '64px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={() => router.push('/flashcards')} style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text }}>
+        <div style={{ padding: '60px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Back size={18} color={t.text}/>
-          </button>
+          </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted }}>{deckName}</div>
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
@@ -110,11 +107,17 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
           </div>
           <div style={{ fontSize: 22, fontWeight: 700, marginTop: 18, letterSpacing: -0.4 }}>Du bist auf dem aktuellen Stand</div>
           <div style={{ fontSize: 14, color: t.textMuted, marginTop: 8, lineHeight: 1.55, maxWidth: 280 }}>
-            Keine Karten mehr fällig. Komm morgen wieder!
+            Keine Karten mehr fällig. Nächste Wiederholung: <strong style={{ color: t.text }}>morgen, 8 Karten</strong>.
           </div>
           <button
             onClick={() => router.push('/flashcards')}
             style={{ marginTop: 24, padding: '12px 20px', borderRadius: 12, border: 'none', background: t.text, color: t.bg, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: baseFont }}
+          >
+            Neue Karte hinzufügen
+          </button>
+          <button
+            onClick={() => router.push('/flashcards')}
+            style={{ marginTop: 8, padding: '10px 18px', borderRadius: 10, border: 'none', background: 'transparent', color: t.textMuted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: baseFont }}
           >
             Zurück zu Decks
           </button>
@@ -123,25 +126,23 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
     );
   }
 
-  const cardBg = dark ? '#1E293B' : '#FFFFFF';
-
   return (
     <>
-      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
+      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
         {/* Top bar */}
-        <div style={{ padding: '64px 20px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ padding: '60px 20px 0', display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
             onClick={() => router.push('/flashcards')}
             style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.border}`, background: t.surface, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Back size={18} color={t.text}/>
+            <Close size={18} color={t.text}/>
           </button>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: t.textMuted, marginBottom: 5 }}>
               <span style={{ fontSize: 12 }}>{deckName}</span>
               <span style={{ fontVariantNumeric: 'tabular-nums' }}>{currentIdx + 1} / {total}</span>
             </div>
-            <ProgressBar pct={progress} t={t}/>
+            <ProgressBar pct={progress} t={t} h={5}/>
           </div>
           <button
             onClick={() => setEditorOpen(true)}
@@ -165,7 +166,7 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                 /* FRONT */
                 <div style={{
                   position: 'absolute', inset: 0,
-                  borderRadius: 20, background: cardBg,
+                  borderRadius: 20, background: t.cardBg,
                   border: `1px solid ${t.border}`,
                   boxShadow: dark ? '0 12px 40px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2)' : '0 1px 2px rgba(15,23,42,0.04), 0 16px 40px rgba(15,23,42,0.10)',
                   padding: '22px 22px 18px',
@@ -193,7 +194,7 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                 /* BACK */
                 <div style={{
                   position: 'absolute', inset: 0,
-                  borderRadius: 20, background: cardBg,
+                  borderRadius: 20, background: t.cardBg,
                   border: `1.5px solid ${t.accent}`,
                   boxShadow: dark ? '0 12px 40px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,153,0,0.1)' : '0 1px 2px rgba(15,23,42,0.04), 0 16px 40px rgba(255,153,0,0.18)',
                   padding: '22px 22px 20px',
@@ -235,6 +236,7 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                       background: b.bg,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
                       cursor: 'pointer', fontFamily: baseFont,
+                      boxShadow: dark ? 'none' : `0 4px 12px ${b.shadow.replace('0.35', '0.18')}`,
                     }}
                   >
                     <div style={{ fontSize: 13, fontWeight: 800, color: b.color, letterSpacing: -0.2 }}>{b.label}</div>

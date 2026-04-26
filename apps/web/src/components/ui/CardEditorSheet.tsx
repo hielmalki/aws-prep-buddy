@@ -80,21 +80,19 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
       {/* sheet */}
       <div style={{
         position: 'absolute', left: 0, right: 0, bottom: 0,
-        maxHeight: '92%',
-        background: dark ? 'rgba(15,23,42,0.96)' : 'rgba(255,255,255,0.98)',
-        backdropFilter: 'blur(30px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-        border: `1px solid ${t.border}`, borderBottom: 'none',
-        borderRadius: '24px 24px 0 0',
+        maxHeight: '88%',
+        background: t.bg,
+        borderTopLeftRadius: 24, borderTopRightRadius: 24,
+        boxShadow: '0 -8px 40px rgba(0,0,0,0.25)',
+        padding: '8px 0 28px',
         color: t.text, fontFamily: baseFont,
         display: 'flex', flexDirection: 'column',
         transform: mounted ? 'translateY(0)' : 'translateY(100%)',
         transition: 'transform .35s cubic-bezier(.2,.8,.2,1)',
-        boxShadow: '0 -20px 60px rgba(0,0,0,0.25)',
       }}>
         {/* grabber */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
-          <div style={{ width: 40, height: 5, borderRadius: 3, background: t.borderStrong }}/>
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 6, paddingBottom: 4 }}>
+          <div style={{ width: 38, height: 4, borderRadius: 2, background: t.borderStrong }}/>
         </div>
 
         {/* header */}
@@ -114,7 +112,7 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
 
         {/* Front / Back tab toggle */}
         <div style={{ padding: '0 18px 14px' }}>
-          <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: dark ? '#1E293B' : '#F1F5F9', border: `1px solid ${t.border}` }}>
+          <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: t.bg2, border: `1px solid ${t.border}` }}>
             {(['front', 'back'] as const).map((s) => {
               const on = tab === s;
               return (

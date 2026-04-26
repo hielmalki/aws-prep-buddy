@@ -5,6 +5,7 @@ import { MINDMAP } from '@aws-prep/content';
 import type { MindmapCluster, MindmapService } from '@aws-prep/content';
 import { theme, baseFont, mono } from '@/lib/theme';
 import { BottomNav } from '@/components/ui/BottomNav';
+import { Back, Search, Plus, Minus, Target, Chevron } from '@/components/icons';
 
 // ── Layout math (exact from design lines 793–805) ──────────────────────────
 const cx = 188, cy = 360;
@@ -81,7 +82,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
 
   return (
     <div style={{
-      background: dark ? 'linear-gradient(180deg, #0F172A 0%, #1E293B 100%)' : 'linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 100%)',
+      background: t.bgGrad,
       height: '100dvh', display: 'flex', flexDirection: 'column',
       fontFamily: baseFont, color: t.text, position: 'relative', overflow: 'hidden',
     }}>
@@ -107,10 +108,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               cursor: 'pointer', flexShrink: 0,
             }}
           >
-            <svg width={18} height={18} viewBox="0 0 24 24" fill="none"
-              stroke={t.text} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
+            <Back size={18} color={t.text}/>
           </button>
 
           {/* Search box */}
@@ -120,10 +118,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
             display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px',
             boxShadow: dark ? 'none' : '0 1px 2px rgba(15,23,42,0.04)',
           }}>
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
-              stroke={t.textMuted} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-            </svg>
+            <Search size={16} color={t.textMuted}/>
             <input
               type="text"
               value={query}
@@ -197,7 +192,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
                     <line x1={c.x} y1={c.y} x2={lx} y2={ly}
                       stroke={clusterColor(c.hue, dark_)} strokeWidth="1" strokeOpacity="0.5"/>
                     <rect x={lx - 22} y={ly - 9} width="44" height="18" rx="9"
-                      fill={dark ? '#1E293B' : '#fff'}
+                      fill={t.cardBg}
                       stroke={clusterColor(c.hue, dark_)} strokeWidth="1"/>
                     <text x={lx} y={ly + 3.5} fontSize="9" fontWeight="600"
                       textAnchor="middle"
@@ -309,10 +304,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               background: 'transparent', border: 'none',
               borderBottom: `1px solid ${t.border}`, cursor: 'pointer',
             }}>
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
-              stroke={t.text} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            <Plus size={16} color={t.text}/>
           </button>
           <button
             onClick={() => setZoom(z => Math.max(0.7, z - 0.2))}
@@ -321,10 +313,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               background: 'transparent', border: 'none',
               borderBottom: `1px solid ${t.border}`, cursor: 'pointer',
             }}>
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none"
-              stroke={t.text} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
+            <Minus size={16} color={t.text}/>
           </button>
           <button
             onClick={() => { setZoom(1.0); setFocusedClusterId(null); setServiceSheet(null); }}
@@ -332,10 +321,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'transparent', border: 'none', cursor: 'pointer',
             }}>
-            <svg width={15} height={15} viewBox="0 0 24 24" fill="none"
-              stroke={t.text} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-            </svg>
+            <Target size={15} color={t.text}/>
           </button>
         </div>
       </div>
@@ -347,7 +333,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
           background: t.bg,
           borderTopLeftRadius: 20, borderTopRightRadius: 20,
           boxShadow: '0 -8px 32px rgba(0,0,0,0.2)',
-          padding: '8px 18px 34px',
+          padding: '8px 18px 24px',
           borderTop: `1px solid ${t.border}`,
         }}>
           {/* Drag handle */}
@@ -363,8 +349,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               border: `1.5px solid ${clusterColor(serviceSheet.cluster.hue, dark)}`,
               color: clusterColor(serviceSheet.cluster.hue, dark),
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 11, fontWeight: 800, fontFamily: mono,
-              textAlign: 'center', lineHeight: 1.2, padding: '0 4px',
+              fontSize: 13, fontWeight: 800, fontFamily: mono,
             }}>
               {serviceSheet.service.abbr}
             </div>
@@ -399,10 +384,7 @@ export function MindmapScreen({ dark = true }: { dark?: boolean }) {
               fontFamily: baseFont,
             }}>
             Im Modul lernen
-            <svg width={15} height={15} viewBox="0 0 24 24" fill="none"
-              stroke="#fff" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
+            <Chevron size={15} color="#fff"/>
           </button>
         </div>
       )}
