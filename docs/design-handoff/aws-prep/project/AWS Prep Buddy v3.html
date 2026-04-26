@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AWS Prep Buddy — Flashcards & Mindmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Inter', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #FF9900; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+async function bootstrap() {
+  const externals = ['design-canvas.jsx', 'flashcards-screens.jsx'];
+  for (const src of externals) {
+    const res = await fetch(src);
+    const text = await res.text();
+    const code = Babel.transform(text, { presets: ['react'] }).code;
+    const s = document.createElement('script');
+    s.textContent = code;
+    document.body.appendChild(s);
+  }
+  // Then transform & inject all inline x-jsx scripts.
+  document.querySelectorAll('script[type="text/x-jsx"]').forEach(s => {
+    try {
+      const code = Babel.transform(s.textContent, { presets: ['react'] }).code;
+      const inj = document.createElement('script');
+      inj.textContent = code;
+      document.body.appendChild(inj);
+    } catch (e) { console.error('babel err', e); }
+  });
+}
+window.addEventListener('load', () => { bootstrap().catch(e => console.error('bootstrap', e)); });
+</script>
+
+<script type="text/x-jsx">
+
+// Frame helper — wraps a screen in an iOS-like 375×812 device shell (or no frame).
+function Frame({ dark, show, children }) {
+  if (!show) {
+    return (
+      <div style={{
+        width: 375, height: 812, borderRadius: 28, overflow: 'hidden',
+        background: dark ? '#0F172A' : '#F8FAFC',
+        boxShadow: dark ? '0 1px 2px rgba(0,0,0,.6)' : '0 1px 2px rgba(15,23,42,.06)',
+      }}>{children}</div>
+    );
+  }
+  return (
+    <div style={{
+      width: 375, height: 812, borderRadius: 44, overflow: 'hidden',
+      background: dark ? '#000' : '#fff',
+      boxShadow: '0 30px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12), inset 0 0 0 7px #0a0a0a',
+      position: 'relative',
+      padding: 7,
+    }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 36, overflow: 'hidden' }}>
+        {/* dynamic island */}
+        <div style={{
+          position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)',
+          width: 110, height: 32, borderRadius: 20, background: '#000', zIndex: 60,
+        }}/>
+        {/* status bar */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 50, zIndex: 55,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '14px 28px 0',
+          fontFamily: '-apple-system, system-ui', fontSize: 15, fontWeight: 600,
+          color: dark ? '#fff' : '#000', pointerEvents: 'none',
+        }}>
+          <span>9:41</span>
+          <span style={{ width: 110 }}/>
+          <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <span style={{ display: 'inline-block', width: 16, height: 10, borderRadius: 2, border: `1.2px solid ${dark ? '#fff' : '#000'}`, position: 'relative' }}>
+              <span style={{ position: 'absolute', inset: 1, background: dark ? '#fff' : '#000', borderRadius: 1 }}/>
+            </span>
+          </span>
+        </div>
+        {children}
+        {/* home indicator */}
+        <div style={{
+          position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)',
+          width: 130, height: 4, borderRadius: 2,
+          background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)', zIndex: 70,
+        }}/>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [showFrame, setShowFrame] = React.useState(true);
+
+  return (
+    <>
+      <DesignCanvas>
+
+        <DCSection id="intro" title="Flashcards + Mindmap"
+          subtitle="Zwei neue Features für AWS Prep Buddy · 375×812 · Light & Dark · konsistent zur v1-Designsprache">
+
+          <DCArtboard id="readme" label="Design-Notes" width={420} height={812}>
+            <div style={{
+              padding: 32, height: '100%', overflow: 'auto',
+              background: '#FFFBF2', color: '#1E140A',
+              fontFamily: "'Inter',sans-serif", fontSize: 13, lineHeight: 1.6,
+            }}>
+              <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.4 }}>Designentscheidungen</div>
+              <div style={{ fontSize: 12, color: '#8B7355', marginTop: 4 }}>v3 — Flashcards + Service-Mindmap</div>
+
+              <div style={{ marginTop: 20, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#8B7355' }}>System</div>
+              <ul style={{ marginTop: 6, paddingLeft: 18 }}>
+                <li>Slate (#0F172A → #1E293B Gradient im Dark) + AWS-Akzent <code>#FF9900</code> übernommen</li>
+                <li>Inter (UI) · JetBrains Mono nur für Code/Service-Tags</li>
+                <li>Card-Radius 14–20 · soft shadow im Light · glow-frei im Dark</li>
+                <li>Generische Icons — kein AWS-Logo, kein Anki-Branding</li>
+              </ul>
+
+              <div style={{ marginTop: 20, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#8B7355' }}>Feature 1 · Flashcards</div>
+              <ul style={{ marginTop: 6, paddingLeft: 18 }}>
+                <li><b>Decks-Übersicht:</b> „Meine Fehler" als Auto-Deck mit Akzent-Highlight + ✨-CTA für KI-Generierung</li>
+                <li><b>Review:</b> 3D-Flip-Karte · 4 SRS-Buttons mit Intervall-Pille (Again/Hard/Good/Easy)</li>
+                <li><b>Editor (Sheet):</b> Front/Back/Tags · Preview-Toggle</li>
+                <li><b>AI-Sheet (90%):</b> Streaming-Karten mit Skeleton + Akzeptieren/Editieren/Verwerfen</li>
+              </ul>
+
+              <div style={{ marginTop: 20, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#8B7355' }}>Feature 2 · Mindmap</div>
+              <ul style={{ marginTop: 6, paddingLeft: 18 }}>
+                <li>Vollbild-Canvas · Root „CLF-C02" · 11 Cluster auf zwei Ringen</li>
+                <li>Cluster-Farben: oklch mit gleicher Chroma+Lightness, nur Hue variiert</li>
+                <li>Service-Leaves: kompakte neutrale Pills, nur bei fokussiertem Cluster</li>
+                <li>Sticky Search mit Backdrop-Blur · Mini-Map + Zoom-Controls unten rechts</li>
+                <li>Service-Sheet bei Tap auf Leaf mit „Im Modul lernen"-CTA</li>
+              </ul>
+
+              <div style={{ marginTop: 20, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#8B7355' }}>Nächste Schritte</div>
+              <ul style={{ marginTop: 6, paddingLeft: 18 }}>
+                <li>Pinch-Zoom + Pan-Gesten (Hammer.js) als Prototyp ergänzen</li>
+                <li>Streaming-Stati an echten LLM-Endpoint koppeln</li>
+                <li>Decks empty state + „neues Deck"-Modal</li>
+              </ul>
+            </div>
+          </DCArtboard>
+
+        </DCSection>
+
+        <DCSection id="flashcards-light" title="Feature 1 · Flashcards" subtitle="Light Mode — alle vier Screens">
+          <DCArtboard id="fc-decks-light" label="1 · Decks-Übersicht" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><DecksOverview dark={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-review-front-light" label="2a · Review (Front)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><ReviewScreen dark={false} flipped={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-review-back-light" label="2b · Review (Back · SRS)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><ReviewScreen dark={false} flipped={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-editor-light" label="3 · Karten-Editor (Sheet)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><CardEditorSheet dark={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-ai-light" label="4 · AI-Review (Streaming)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><AIReviewSheet dark={false} streaming={true}/></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="flashcards-dark" title="Feature 1 · Flashcards" subtitle="Dark Mode — Slate-Gradient, glow-freier Glass">
+          <DCArtboard id="fc-decks-dark" label="1 · Decks-Übersicht" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><DecksOverview dark={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-review-front-dark" label="2a · Review (Front)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><ReviewScreen dark={true} flipped={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-review-back-dark" label="2b · Review (Back · SRS)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><ReviewScreen dark={true} flipped={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-editor-dark" label="3 · Karten-Editor (Sheet)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><CardEditorSheet dark={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-ai-dark" label="4 · AI-Review (Streaming)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><AIReviewSheet dark={true} streaming={true}/></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="states" title="States — Empty & Ready" subtitle="Review-Empty (alles wiederholt) + AI-Sheet ohne Streaming">
+          <DCArtboard id="fc-empty-light" label="Review · Empty (Light)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><ReviewScreen dark={false} empty={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-empty-dark" label="Review · Empty (Dark)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><ReviewScreen dark={true} empty={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-ai-done-light" label="AI · Fertig (Light)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><AIReviewSheet dark={false} streaming={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="fc-ai-done-dark" label="AI · Fertig (Dark)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><AIReviewSheet dark={true} streaming={false}/></Frame>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="mindmap" title="Feature 2 · Service-Mindmap" subtitle="/learn/mindmap · Vollbild-Canvas · Pinch-Zoom & Pan">
+          <DCArtboard id="mm-light" label="Mindmap · Light" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><MindmapScreen dark={false}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="mm-dark" label="Mindmap · Dark" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><MindmapScreen dark={true}/></Frame>
+          </DCArtboard>
+          <DCArtboard id="mm-focus-light" label="Cluster fokussiert · Light" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><MindmapScreen dark={false} focusedCluster="compute"/></Frame>
+          </DCArtboard>
+          <DCArtboard id="mm-focus-dark" label="Cluster fokussiert · Dark" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><MindmapScreen dark={true} focusedCluster="compute"/></Frame>
+          </DCArtboard>
+          <DCArtboard id="mm-sheet-light" label="Service-Sheet (Light)" width={375} height={812}>
+            <Frame dark={false} show={showFrame}><MindmapScreen dark={false} sheetOpen={true} focusedCluster="compute"/></Frame>
+          </DCArtboard>
+          <DCArtboard id="mm-sheet-dark" label="Service-Sheet (Dark)" width={375} height={812}>
+            <Frame dark={true} show={showFrame}><MindmapScreen dark={true} sheetOpen={true} focusedCluster="compute"/></Frame>
+          </DCArtboard>
+        </DCSection>
+
+      </DesignCanvas>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
