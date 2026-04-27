@@ -1,103 +1,54 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+**AWS Prep Buddy** — Mobile-First PWA für tägliche AWS CLF-C02-Prüfungsvorbereitung.
+Content stammt aus dem Schwester-Repo `../AWS-Certified-Cloud-Practitioner-Notes/`.
 
-## What This Project Is
+## ⛔ Do Not Read
 
-**AWS Prep Buddy** — a Mobile-First PWA for daily AWS Certified Cloud Practitioner (CLF-C02) exam preparation. Content (study notes + 23 practice exams) is sourced from the sibling repo at `../AWS-Certified-Cloud-Practitioner-Notes/`.
-
-## Do Not Read
-
-Never open these paths — they are either generated artifacts (large), compile output, or noise:
-
-- `packages/content/dist/*.json` — generated, 200–800 KB each; use `import { SECTIONS, EXAMS } from '@repo/content'` instead
-- `packages/content/build/**` — TypeScript compile output
+- `packages/content/dist/*.json` — generiert, 200–800 KB. Stattdessen: `import { SECTIONS, EXAMS } from '@repo/content'`
+- `packages/content/build/**` — TypeScript-Compile-Output
 - `node_modules/`, `.next/`, `.turbo/`, `dist/`, `build/`
-- `pnpm-lock.yaml` — unless the task is specifically about dependencies
-- `../AWS-Certified-Cloud-Practitioner-Notes/` — raw Markdown source; only needed when changing the parser
+- `pnpm-lock.yaml` — nur bei Dependency-Aufgaben
+- `../AWS-Certified-Cloud-Practitioner-Notes/` — nur wenn der Parser geändert wird
 
-## Read These First
+## 🎯 Read These First
 
-Jump directly to these files per task category instead of exploring:
+Direkt zum Entry-Point springen statt zu erkunden. Nested `CLAUDE.md` enthält die subsystem-spezifischen Regeln und wird beim Arbeiten im jeweiligen Subtree geladen — bei Bedarf explizit lesen.
 
-| Task | Entry point |
-|------|-------------|
-| Quiz logic | `packages/core/src/quiz-engine.ts` |
-| Storage / settings | `packages/core/src/store/` |
-| AI-Tutor (server) | `apps/web/src/app/api/tutor/route.ts`, `packages/core/src/llm-client.ts` |
-| Screens / UI | `apps/web/src/components/screens/` |
-| Content parser | `packages/content/parser/` |
+| Task | Entry point | Subsystem-Regeln |
+|------|-------------|------------------|
+| Quiz-Logik | `packages/core/src/quiz-engine.ts` | `packages/core/CLAUDE.md` |
+| Storage / Settings | `packages/core/src/store/` | `packages/core/CLAUDE.md` |
+| AI-Tutor (Server) | `apps/web/src/app/api/tutor/route.ts` | `apps/web/CLAUDE.md` |
+| Screens / UI | `apps/web/src/components/screens/` | `apps/web/CLAUDE.md` |
+| Content-Parser | `packages/content/parser/` | `packages/content/CLAUDE.md` |
 
-## Repository Layout
+## Repo-Layout
 
 ```
-aws-prep/
-├── apps/
-│   ├── web/          # Next.js 15 (App Router) PWA — the active app
-│   └── mobile/       # Expo app (Phase 3, not yet built)
-├── packages/
-│   ├── content/      # Build-time MD → JSON parser + generated JSON data
-│   ├── core/         # Platform-agnostic logic: quiz engine, LLM client, Zustand stores
-│   └── ui/           # Shared UI primitives (Phase 3)
-└── turbo.json
+apps/web/         Next.js 15 (App Router) PWA — die aktive App
+apps/mobile/      Expo (Phase 3, noch nicht gebaut)
+packages/content  MD → JSON Parser + generierte Daten
+packages/core     Quiz-Engine, LLM-Client, Zustand-Stores
+packages/ui       Shared UI-Primitives (Phase 3)
 ```
 
-## Commands
+## Tägliche Commands
 
 ```bash
-pnpm dev                            # run web app (http://localhost:3000)
-pnpm --filter content build         # parse MD → JSON (run after content changes)
-pnpm --filter <workspace> lint      # lint one workspace (not global — too slow)
-pnpm --filter web test -- <pattern> # run a single test file
+pnpm dev                            # Web-App auf :3000
+pnpm --filter <ws> lint             # nur einen Workspace linten — NIE global
+pnpm --filter <ws> test -- <p>      # einzelnen Test laufen lassen
+pnpm --filter content build         # Content nach MD-Änderungen neu bauen
 ```
 
-## Content Pipeline
+## Token-Discipline (repo-weit)
 
-Source Markdown lives in `../AWS-Certified-Cloud-Practitioner-Notes/`:
-- `sections/*.md` → `packages/content/dist/sections.json`
-- `practice-exam/practice-exam-*.md` → `packages/content/dist/exams.json`
+- Nie `exams.json` / `sections.json` direkt lesen — immer typisierte Imports aus `@repo/content`
+- Suche **muss** Exclusions enthalten: `rg --glob '!{node_modules,.next,dist,build,.turbo}'`
+- Lint per-Workspace, nie `pnpm lint` global
+- Lange Outputs (Builds, Installs, Tests) durch `2>&1 | tail -80` pipen
 
-Run `/parse-content` after source Markdown changes. Run `/check-exams` to validate.
+## Coding-Regel
 
-**Question schema**: `examId`, `number`, `text`, `options[]`, `correctLetters[]`, optional `explanation`, optional `topics[]`.
-
-## Core Packages
-
-### `packages/core`
-- `quiz-engine.ts` — selects questions, scores answers, tracks session state
-- `llm-client.ts` — `LLMProvider` interface (Anthropic + OpenAI); AI-Tutor is built against this interface, never a concrete SDK
-- `srs.ts` — SM-2 spaced repetition stub (no-op in MVP)
-- `store/` — Zustand stores; **no `window`/`document`/`localStorage`** here, only adapter calls
-
-### `packages/content`
-Exports `SECTIONS` and `EXAMS` as typed constants. Always import from here; never read the dist JSON directly.
-
-## LLM / AI-Tutor
-
-Server-side only. API route at `apps/web/src/app/api/tutor/route.ts` handles streaming (SSE).
-
-- Uses **Anthropic Prompt Caching** for the context block.
-- Key resolution order: `X-LLM-Key` header (BYOK) → `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` env vars.
-- Client BYOK keys are stored encrypted in IndexedDB (Dexie) and sent as request headers.
-
-## Scaling Stubs
-
-Auth/SRS/Cloud-Sync are intentionally stubbed (`userId="local"`, SRS is a no-op, Drizzle schema mirrors IndexedDB). Do not activate without an explicit request.
-
-## Token Discipline
-
-- Never read `exams.json` or `sections.json` directly — always use typed imports from `@repo/content`.
-- Grep/find must include exclusions: `rg --glob '!{node_modules,.next,dist,build,.turbo}'`
-- Lint only the changed workspace: `pnpm --filter <workspace> lint`, never `pnpm lint` globally.
-- For commands expected to produce > 200 lines (builds, installs, tests): pipe through `2>&1 | tail -80`.
-
-## Environment Variables
-
-```
-# apps/web/.env.local
-ANTHROPIC_API_KEY=...
-OPENAI_API_KEY=...
-```
-
-## Coding
-- never code with model opus. Coding is only allowed with sonnet
+Nie mit Opus coden. Coden nur mit Sonnet erlaubt.
