@@ -15,10 +15,10 @@ interface FlashcardReviewScreenProps {
 
 function formatInterval(card: FlashcardRecord, quality: ReviewQuality): string {
   const preview = applyReview(card, quality);
-  if (quality === 'again') return '1 Min';
-  if (preview.interval === 0) return '1 Min';
-  if (preview.interval === 1) return '1 Tag';
-  return `${preview.interval} Tage`;
+  if (quality === 'again') return '1 min';
+  if (preview.interval === 0) return '1 min';
+  if (preview.interval === 1) return '1 day';
+  return `${preview.interval} days`;
 }
 
 export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewScreenProps) {
@@ -182,12 +182,12 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                     </div>
                   )}
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '20px 4px' }}>
-                    <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.35, letterSpacing: -0.3 }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, lineHeight: 1.4, letterSpacing: -0.2 }}>
                       {currentCard.front}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: t.textMuted, fontSize: 12 }}>
-                    <Flip size={15} color={t.textMuted}/> Tippe zum Umdrehen
+                    <Flip size={15} color={t.textMuted}/> Tap to flip
                   </div>
                 </div>
               ) : (
@@ -200,9 +200,9 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                   padding: '22px 22px 20px',
                   display: 'flex', flexDirection: 'column',
                 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: t.accent, letterSpacing: 0.6, textTransform: 'uppercase' }}>Antwort</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: t.accent, letterSpacing: 0.5, textTransform: 'uppercase' }}>Answer</div>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '14px 0' }}>
-                    <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.6, color: t.accent, lineHeight: 1.25 }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.3, color: t.text, lineHeight: 1.4 }}>
                       {currentCard.back}
                     </div>
                   </div>
@@ -223,7 +223,7 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}
               >
-                <Flip size={18} color={t.bg}/> Antwort anzeigen
+                <Flip size={18} color={t.bg}/> Show Answer
               </button>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>

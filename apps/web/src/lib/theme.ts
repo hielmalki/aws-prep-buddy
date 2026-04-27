@@ -11,7 +11,7 @@ export const slate50  = '#F8FAFC';
 export const green400 = '#4ADE80';
 export const red400   = '#F87171';
 
-export const baseFont = `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+export const baseFont = `-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif`;
 export const mono = `'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace`;
 
 export interface Theme {
