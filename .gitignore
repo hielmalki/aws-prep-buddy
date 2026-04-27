@@ -27,3 +27,6 @@ apps/web/src/data/
 
 # Lock file (not committed in this repo)
 package-lock.json
+
+# LLM API keys (never commit)
+apps/web/llm-keys.json

@@ -189,7 +189,19 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
           )}
         </div>
       </div>
-      <TutorSheet dark={dark} open={tutorOpen} onClose={() => setTutorOpen(false)}/>
+      <TutorSheet
+        dark={dark}
+        open={tutorOpen}
+        onClose={() => setTutorOpen(false)}
+        context={{
+          examId,
+          questionNumber: questionNum,
+          questionText: question.text,
+          topicLabel: question.topics?.[0],
+          picked,
+          correctLetters: question.correctLetters,
+        }}
+      />
     </>
   );
 }

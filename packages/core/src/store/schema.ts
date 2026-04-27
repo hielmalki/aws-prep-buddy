@@ -20,7 +20,7 @@ export interface SessionRecord {
 export interface SettingsRecord {
   userId: string;
   theme: 'light' | 'dark' | 'system';
-  llmProvider: 'anthropic' | 'openai';
+  llmProvider: 'openai';
   dailyGoal: number;
   updatedAt: number;
 }

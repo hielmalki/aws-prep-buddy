@@ -7,12 +7,12 @@ export const DEFAULT_DAILY_GOAL = 10;
 interface SettingsState {
   userId: string;
   theme: 'light' | 'dark' | 'system';
-  llmProvider: 'anthropic' | 'openai';
+  llmProvider: 'openai';
   dailyGoal: number;
   hydrated: boolean;
   hydrate: () => Promise<void>;
   setTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;
-  setLlmProvider: (provider: 'anthropic' | 'openai') => Promise<void>;
+  setLlmProvider: (provider: 'openai') => Promise<void>;
   setDailyGoal: (n: number) => Promise<void>;
 }
 
@@ -30,7 +30,7 @@ async function persist(state: SettingsState): Promise<void> {
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   userId: 'local',
   theme: 'system',
-  llmProvider: 'anthropic',
+  llmProvider: 'openai',
   dailyGoal: DEFAULT_DAILY_GOAL,
   hydrated: false,
 
@@ -40,7 +40,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     if (record) {
       set({
         theme: record.theme,
-        llmProvider: record.llmProvider,
+        llmProvider: 'openai',
         dailyGoal: record.dailyGoal ?? DEFAULT_DAILY_GOAL,
         hydrated: true,
       });

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
+import { getOpenAIKey } from '@/lib/llm-keys';
 import { getQuestion } from '@/lib/data';
 import type { Question } from '@aws-prep/content';
 
@@ -51,7 +52,6 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        // Resolve questions
         const resolved: Question[] = [];
         for (const item of items) {
           const q = getQuestion(item.examId, item.questionNumber);
@@ -64,77 +64,50 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        // Resolve API key
-        const apiKey =
-          req.headers.get('X-LLM-Key') ?? process.env.ANTHROPIC_API_KEY ?? '';
-
+        const apiKey = await getOpenAIKey();
         if (!apiKey) {
-          emit({ error: 'No API key provided. Set ANTHROPIC_API_KEY or pass X-LLM-Key header.' });
+          emit({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY or add it to llm-keys.json.' });
           controller.close();
           return;
         }
 
-        const client = new Anthropic({ apiKey });
-        const model =
-          process.env.ANTHROPIC_FLASHCARD_MODEL ?? 'claude-haiku-4-5-20251001';
-
+        const client = new OpenAI({ apiKey });
         const systemPrompt = language === 'en' ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_DE;
         const userContent = buildUserContent(resolved);
 
-        // Stream with prompt caching
-        const response = await client.messages.create({
-          model,
+        const response = await client.chat.completions.create({
+          model: 'gpt-4o-mini',
           max_tokens: 2048,
-          system: [
-            {
-              type: 'text',
-              text: systemPrompt,
-              cache_control: { type: 'ephemeral' },
-            },
-          ],
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: userContent,
-                  cache_control: { type: 'ephemeral' },
-                },
-              ],
-            },
-          ],
           stream: true,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent },
+          ],
         });
 
         let buffer = '';
 
-        for await (const event of response) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            buffer += event.delta.text;
+        for await (const chunk of response) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (!delta) continue;
 
-            // Process complete lines
-            const lines = buffer.split('\n');
-            // Keep the last (potentially incomplete) chunk in the buffer
-            buffer = lines.pop() ?? '';
+          buffer += delta;
 
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed) continue;
-              try {
-                const parsed = JSON.parse(trimmed);
-                emit(parsed);
-              } catch {
-                // Malformed line — skip silently
-              }
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            try {
+              const parsed = JSON.parse(trimmed);
+              emit(parsed);
+            } catch {
+              // malformed line — skip
             }
           }
         }
 
-        // Flush remaining buffer
         if (buffer.trim()) {
           try {
             const parsed = JSON.parse(buffer.trim());
