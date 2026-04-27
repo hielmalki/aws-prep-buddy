@@ -1,20 +1,27 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useProgressStore, examProgress, wrongQuestionNumbersInExam } from '@aws-prep/core';
-import { groupQuestionsByModule, LEARN_MODULES } from '@aws-prep/content';
+import { useProgressStore, examProgress, wrongQuestionNumbersInExam, useFlashcardStore } from '@aws-prep/core';
+import { groupQuestionsByModule } from '@aws-prep/content';
 import type { LearnModule } from '@aws-prep/content';
 import type { Question } from '@aws-prep/content';
 import { getQuestion } from '@/lib/data';
 import { theme, baseFont } from '@/lib/theme';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Trophy, Check, Chevron, ChevronDown, Server, Shield, Database, DollarSign, Globe, Cloud, Layers, Bolt, Book, Settings, Target } from '@/components/icons';
+import { AICardReviewSheet, type AICardItem } from '@/components/screens/AICardReviewSheet';
+import { Trophy, Check, Chevron, ChevronDown, Server, Shield, Database, DollarSign, Globe, Cloud, Layers, Bolt, Book, Settings, Target, Sparkle } from '@/components/icons';
 
 interface ResultScreenProps {
   examId: number;
   total: number;
   dark?: boolean;
+}
+
+interface AISheetState {
+  items: AICardItem[];
+  deckId: string;
+  deckName: string;
 }
 
 function moduleIcon(icon: LearnModule['icon'], size: number, color: string) {
@@ -34,7 +41,19 @@ function moduleIcon(icon: LearnModule['icon'], size: number, color: string) {
   }
 }
 
-function ModuleCard({ mod, questions, dark, onLearn }: { mod: LearnModule; questions: Question[]; dark: boolean; onLearn: () => void }) {
+function ModuleCard({
+  mod,
+  questions,
+  dark,
+  onLearn,
+  onCreateCards,
+}: {
+  mod: LearnModule;
+  questions: Question[];
+  dark: boolean;
+  onLearn: () => void;
+  onCreateCards: () => void;
+}) {
   const t = theme(dark);
   const [open, setOpen] = useState(false);
   return (
@@ -60,6 +79,7 @@ function ModuleCard({ mod, questions, dark, onLearn }: { mod: LearnModule; quest
           </div>
         </button>
       </div>
+
       {open && (
         <div style={{ borderTop: `1px solid ${t.border}`, padding: '8px 14px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
           {questions.map(q => (
@@ -72,6 +92,23 @@ function ModuleCard({ mod, questions, dark, onLearn }: { mod: LearnModule; quest
           ))}
         </div>
       )}
+
+      {/* AI Flashcard CTA */}
+      <div style={{ borderTop: `1px solid ${t.border}`, padding: '10px 14px' }}>
+        <button
+          onClick={onCreateCards}
+          style={{
+            width: '100%', padding: '9px 12px', borderRadius: 10, boxSizing: 'border-box',
+            border: `1px dashed ${dark ? 'rgba(255,153,0,0.4)' : 'rgba(232,136,0,0.4)'}`,
+            background: t.accentSoft, color: t.accent,
+            fontFamily: baseFont, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}
+        >
+          <Sparkle size={14} color={t.accent} />
+          Create Flashcards with AI
+        </button>
+      </div>
     </div>
   );
 }
@@ -83,7 +120,15 @@ export function ResultScreen({ examId, total, dark = true }: ResultScreenProps) 
   const hydrated = useProgressStore(s => s.hydrated);
   const hydrate = useProgressStore(s => s.hydrate);
 
+  const [aiSheet, setAiSheet] = useState<AISheetState | null>(null);
+
   useEffect(() => { if (!hydrated) hydrate(); }, [hydrated, hydrate]);
+
+  // Ensure flashcard store is hydrated so ensureTopicDeck works
+  useEffect(() => {
+    const store = useFlashcardStore.getState();
+    if (!store.hydrated) store.hydrate();
+  }, []);
 
   if (!hydrated) {
     return (
@@ -101,101 +146,122 @@ export function ResultScreen({ examId, total, dark = true }: ResultScreenProps) 
   const scorePct = total > 0 ? Math.round((progress.correct / total) * 100) : 0;
   const passed = scorePct >= 70;
 
+  async function handleCreateCards(mod: LearnModule, questions: Question[]) {
+    const { ensureTopicDeck } = useFlashcardStore.getState();
+    await ensureTopicDeck(mod.slug, mod.title);
+    const items = questions.map(q => ({ examId: q.examId ?? examId, questionNumber: q.number }));
+    setAiSheet({ items, deckId: `topic:${mod.slug}`, deckName: mod.title });
+  }
+
   return (
-    <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
-      {/* scrollable content */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '60px 20px 160px' }}>
+    <>
+      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
+        {/* scrollable content */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '60px 20px 160px' }}>
 
-        {/* score hero */}
-        <div style={{ textAlign: 'center', padding: '24px 0 32px' }}>
-          <div style={{ width: 72, height: 72, borderRadius: 20, background: passed ? 'rgba(74,222,128,0.14)' : 'rgba(248,113,113,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Trophy size={36} color={passed ? t.green : t.red} />
+          {/* score hero */}
+          <div style={{ textAlign: 'center', padding: '24px 0 32px' }}>
+            <div style={{ width: 72, height: 72, borderRadius: 20, background: passed ? 'rgba(74,222,128,0.14)' : 'rgba(248,113,113,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <Trophy size={36} color={passed ? t.green : t.red} />
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+              Exam {examId} · Result
+            </div>
+            <div style={{ fontSize: 52, fontWeight: 800, letterSpacing: -2, lineHeight: 1 }}>
+              {scorePct}<span style={{ fontSize: 24, fontWeight: 600, color: t.textMuted }}>%</span>
+            </div>
+            <div style={{ fontSize: 14, color: t.textMuted, marginTop: 6 }}>
+              {progress.correct} of {total} correct
+            </div>
+            <div style={{ marginTop: 16, maxWidth: 280, margin: '16px auto 0' }}>
+              <ProgressBar pct={scorePct} t={t} />
+            </div>
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: t.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-            Exam {examId} · Result
+
+          {/* stat chips */}
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 28 }}>
+            {[
+              { label: 'Correct', value: progress.correct, color: t.green, bg: dark ? 'rgba(74,222,128,0.12)' : '#F0FDF4' },
+              { label: 'Wrong', value: progress.wrong, color: t.red, bg: dark ? 'rgba(248,113,113,0.12)' : '#FEF2F2' },
+              { label: 'Skipped', value: total - progress.answered, color: t.textMuted, bg: t.surface },
+            ].map(({ label, value, color, bg }) => (
+              <div key={label} style={{ flex: 1, borderRadius: 14, background: bg, border: `1px solid ${t.border}`, padding: '12px 8px', textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginTop: 2 }}>{label}</div>
+              </div>
+            ))}
           </div>
-          <div style={{ fontSize: 52, fontWeight: 800, letterSpacing: -2, lineHeight: 1 }}>
-            {scorePct}<span style={{ fontSize: 24, fontWeight: 600, color: t.textMuted }}>%</span>
-          </div>
-          <div style={{ fontSize: 14, color: t.textMuted, marginTop: 6 }}>
-            {progress.correct} of {total} correct
-          </div>
-          <div style={{ marginTop: 16, maxWidth: 280, margin: '16px auto 0' }}>
-            <ProgressBar pct={scorePct} t={t} />
-          </div>
+
+          {/* wrong answers grouped by module */}
+          {grouped.size > 0 && (
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>
+                Study these topics
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[...grouped.values()].map(({ module: mod, questions: qs }) => (
+                  <ModuleCard
+                    key={mod.slug}
+                    mod={mod}
+                    questions={qs}
+                    dark={dark}
+                    onLearn={() => router.push(`/learn/${mod.slug}`)}
+                    onCreateCards={() => handleCreateCards(mod, qs)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {wrongNums.length === 0 && progress.answered === total && (
+            <div style={{ textAlign: 'center', padding: '16px 0', color: t.textMuted, fontSize: 14 }}>
+              <Check size={28} color={t.green} />
+              <div style={{ marginTop: 8, fontWeight: 600 }}>Perfect score!</div>
+            </div>
+          )}
         </div>
 
-        {/* stat chips */}
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 28 }}>
-          {[
-            { label: 'Correct', value: progress.correct, color: t.green, bg: dark ? 'rgba(74,222,128,0.12)' : '#F0FDF4' },
-            { label: 'Wrong', value: progress.wrong, color: t.red, bg: dark ? 'rgba(248,113,113,0.12)' : '#FEF2F2' },
-            { label: 'Skipped', value: total - progress.answered, color: t.textMuted, bg: t.surface },
-          ].map(({ label, value, color, bg }) => (
-            <div key={label} style={{ flex: 1, borderRadius: 14, background: bg, border: `1px solid ${t.border}`, padding: '12px 8px', textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color }}>{value}</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, marginTop: 2 }}>{label}</div>
-            </div>
-          ))}
+        {/* action buttons */}
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '12px 20px 24px', background: t.navBg, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: `1px solid ${t.border}`, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button
+            onClick={() => router.push(`/quiz/review?exam=${examId}&i=0`)}
+            disabled={wrongNums.length === 0}
+            style={{
+              width: '100%', height: 52, borderRadius: 14, border: 'none',
+              background: wrongNums.length > 0 ? t.accent : (dark ? 'rgba(255,255,255,0.06)' : '#E2E8F0'),
+              color: wrongNums.length > 0 ? '#fff' : t.textMuted,
+              fontSize: 15, fontWeight: 700, fontFamily: baseFont,
+              cursor: wrongNums.length > 0 ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            }}
+          >
+            Review wrong answers ({wrongNums.length}) <Chevron size={18} color={wrongNums.length > 0 ? '#fff' : t.textMuted} />
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              width: '100%', height: 46, borderRadius: 14,
+              border: `1px solid ${t.border}`, background: t.surface,
+              color: t.text, fontSize: 14, fontWeight: 600, fontFamily: baseFont, cursor: 'pointer',
+            }}
+          >
+            Back to home
+          </button>
         </div>
 
-        {/* wrong answers grouped by module */}
-        {grouped.size > 0 && (
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: t.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>
-              Study these topics
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[...grouped.values()].map(({ module: mod, questions: qs }) => (
-                <ModuleCard
-                  key={mod.slug}
-                  mod={mod}
-                  questions={qs}
-                  dark={dark}
-                  onLearn={() => router.push(`/learn/${mod.slug}`)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {wrongNums.length === 0 && progress.answered === total && (
-          <div style={{ textAlign: 'center', padding: '16px 0', color: t.textMuted, fontSize: 14 }}>
-            <Check size={28} color={t.green} />
-            <div style={{ marginTop: 8, fontWeight: 600 }}>Perfect score!</div>
-          </div>
-        )}
+        <BottomNav active="quiz" t={t} />
       </div>
 
-      {/* action buttons */}
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: '12px 20px 24px', background: t.navBg, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: `1px solid ${t.border}`, zIndex: 35, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <button
-          onClick={() => router.push(`/quiz/review?exam=${examId}&i=0`)}
-          disabled={wrongNums.length === 0}
-          style={{
-            width: '100%', height: 52, borderRadius: 14, border: 'none',
-            background: wrongNums.length > 0 ? t.accent : (dark ? 'rgba(255,255,255,0.06)' : '#E2E8F0'),
-            color: wrongNums.length > 0 ? '#fff' : t.textMuted,
-            fontSize: 15, fontWeight: 700, fontFamily: baseFont,
-            cursor: wrongNums.length > 0 ? 'pointer' : 'not-allowed',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          }}
-        >
-          Review wrong answers ({wrongNums.length}) <Chevron size={18} color={wrongNums.length > 0 ? '#fff' : t.textMuted} />
-        </button>
-        <button
-          onClick={() => router.push('/')}
-          style={{
-            width: '100%', height: 46, borderRadius: 14,
-            border: `1px solid ${t.border}`, background: t.surface,
-            color: t.text, fontSize: 14, fontWeight: 600, fontFamily: baseFont, cursor: 'pointer',
-          }}
-        >
-          Back to home
-        </button>
-      </div>
-
-      <BottomNav active="quiz" t={t} />
-    </div>
+      {aiSheet && (
+        <AICardReviewSheet
+          dark={dark}
+          open={true}
+          onClose={() => setAiSheet(null)}
+          items={aiSheet.items}
+          deckId={aiSheet.deckId}
+          deckName={aiSheet.deckName}
+        />
+      )}
+    </>
   );
 }

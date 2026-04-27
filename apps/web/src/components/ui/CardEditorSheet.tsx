@@ -98,15 +98,15 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
         {/* header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 18px 14px' }}>
           <button onClick={onClose} style={{ width: 60, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: t.textMuted, fontSize: 14, fontWeight: 500, fontFamily: baseFont, padding: 0 }}>
-            Abbrechen
+            Cancel
           </button>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>{cardId ? 'Karte bearbeiten' : 'Neue Karte'}</div>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>{cardId ? 'Edit Card' : 'New Card'}</div>
           <button
             onClick={handleSave}
             disabled={!front.trim() || !back.trim() || saving}
             style={{ width: 60, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'right', color: (!front.trim() || !back.trim()) ? t.textSubtle : t.accent, fontSize: 14, fontWeight: 700, fontFamily: baseFont, padding: 0 }}
           >
-            {saving ? '...' : 'Speichern'}
+            {saving ? '...' : 'Save'}
           </button>
         </div>
 
@@ -139,7 +139,7 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
             <textarea
               value={front}
               onChange={e => setFront(e.target.value)}
-              placeholder="Frage oder Begriff..."
+              placeholder="Question or concept..."
               style={{
                 width: '100%', minHeight: 92, padding: 14, borderRadius: 14, boxSizing: 'border-box',
                 background: t.surface, color: t.text, fontFamily: baseFont, fontSize: 15, fontWeight: 600, lineHeight: 1.45,
@@ -155,7 +155,7 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
             <textarea
               value={back}
               onChange={e => setBack(e.target.value)}
-              placeholder="Antwort oder Erklärung..."
+              placeholder="Answer or explanation..."
               style={{
                 width: '100%', minHeight: 110, padding: 14, borderRadius: 14, boxSizing: 'border-box',
                 background: t.surface, color: t.text, fontFamily: baseFont, fontSize: 14, lineHeight: 1.55,
@@ -195,7 +195,7 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(tagInput); } }}
                 onBlur={() => { if (tagInput.trim()) addTag(tagInput); }}
-                placeholder="Tag hinzufügen"
+                placeholder="Add tag"
                 style={{
                   border: `1px dashed ${t.borderStrong}`, borderRadius: 999, padding: '5px 9px',
                   background: 'transparent', color: t.textMuted, fontFamily: baseFont,

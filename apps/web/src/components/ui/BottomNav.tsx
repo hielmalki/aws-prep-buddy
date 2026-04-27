@@ -7,7 +7,7 @@ export type NavId = 'home' | 'learn' | 'quiz' | 'settings';
 
 const items: { id: NavId; label: string; href: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
   { id: 'home',     label: 'Home',    href: '/',           Icon: Home },
-  { id: 'learn',    label: 'Learn',   href: '/learn',      Icon: Book },
+  { id: 'learn',    label: 'Flashcards', href: '/flashcards', Icon: Book },
   { id: 'quiz',     label: 'Quiz',    href: '/quiz',       Icon: Quiz },
   { id: 'settings', label: 'Du',      href: '/settings',   Icon: Settings },
 ];

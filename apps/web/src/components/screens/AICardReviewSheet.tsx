@@ -305,11 +305,7 @@ export function AICardReviewSheet({
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
-                  {streaming
-                    ? `Karten aus ${items.length} Fehlern generieren`
-                    : error
-                      ? `Karten aus ${items.length} Fehlern generieren`
-                      : `Karten aus ${items.length} Fehlern generieren`}
+                  {`Generating cards from ${items.length} wrong answer${items.length === 1 ? '' : 's'}`}
                 </div>
                 <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2, display: 'flex', alignItems: 'center', gap: 5 }}>
                   {streaming && (
@@ -320,10 +316,10 @@ export function AICardReviewSheet({
                     </span>
                   )}
                   {streaming
-                    ? `Streaming · ${totalArrived} von ${items.length} Vorschlägen`
+                    ? `Streaming · ${totalArrived} of ${items.length} suggestions`
                     : error
-                      ? 'Fehler aufgetreten'
-                      : `${totalArrived} Vorschläge bereit`}
+                      ? 'An error occurred'
+                      : `${totalArrived} suggestion${totalArrived === 1 ? '' : 's'} ready`}
                 </div>
               </div>
               <div style={{
@@ -363,7 +359,7 @@ export function AICardReviewSheet({
             )}
             {items.length === 0 && (
               <div style={{ textAlign: 'center', padding: '32px 0', color: t.textMuted, fontSize: 14 }}>
-                Keine Fragen ausgewählt.
+                No questions selected.
               </div>
             )}
           </div>
@@ -393,8 +389,8 @@ export function AICardReviewSheet({
               {saving
                 ? 'Speichere…'
                 : streaming
-                  ? 'Generiere…'
-                  : `${acceptedCount} ${acceptedCount === 1 ? 'Karte' : 'Karten'} in „${deckName}" speichern`}
+                  ? 'Generating…'
+                  : `Save ${acceptedCount} ${acceptedCount === 1 ? 'card' : 'cards'} to "${deckName}"`}
             </button>
           </div>
         </div>
@@ -483,7 +479,7 @@ function CardRow({ card, dark, t, onToggleAccept, onEdit }: CardRowProps) {
                 color: dark ? '#FBBF24' : '#B45309',
                 background: dark ? 'rgba(251,191,36,0.12)' : '#FFFBEB',
                 padding: '2px 7px', borderRadius: 999, border: `1px solid ${dark ? 'rgba(251,191,36,0.3)' : '#FCD34D'}`,
-              }}>⚠️ Bitte prüfen</span>
+              }}>⚠️ Please review</span>
             )}
           </div>
         )}
@@ -496,11 +492,11 @@ function CardRow({ card, dark, t, onToggleAccept, onEdit }: CardRowProps) {
           </div>
         ) : (
           <>
-            <button onClick={onToggleAccept} title={card.accepted ? 'Akzeptiert – klicken zum Überspringen' : 'Übersprungen – klicken zum Akzeptieren'}
+            <button onClick={onToggleAccept} title={card.accepted ? 'Accepted – click to skip' : 'Skipped – click to accept'}
               style={{ width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer', background: t.greenSoft, color: t.green, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: card.accepted ? 1 : 0.4 }}>
               <Check size={15} color={t.green}/>
             </button>
-            <button onClick={onEdit} title="Bearbeiten"
+            <button onClick={onEdit} title="Edit"
               style={{ width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer', background: t.bg2, color: t.textMuted, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Edit size={13} color={t.textMuted}/>
             </button>
@@ -565,15 +561,15 @@ function InlineDraftEditor({ dark, initialFront, initialBack, initialTags, onSav
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.textMuted, fontFamily: baseFont, fontSize: 14, fontWeight: 500, padding: 0 }}>
-            Abbrechen
+            Cancel
           </button>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>Karte bearbeiten</div>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>Edit Card</div>
           <button
             onClick={() => onSave(front.trim(), back.trim(), tags)}
             disabled={!front.trim() || !back.trim()}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: (!front.trim() || !back.trim()) ? t.textMuted : t.accent, fontFamily: baseFont, fontSize: 14, fontWeight: 700, padding: 0 }}
           >
-            Fertig
+            Done
           </button>
         </div>
 

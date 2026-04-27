@@ -1,5 +1,16 @@
 import { create } from 'zustand';
 import { getStorageAdapter } from './adapter.js';
+
+function uuid(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return uuid();
+  }
+  // Fallback for iOS Safari < 15.4 and non-secure contexts
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
 import { applyReview } from '../srs.js';
 import type { ReviewQuality } from '../srs.js';
 import type { FlashcardDeckRecord, FlashcardRecord } from './schema.js';
@@ -13,7 +24,9 @@ interface FlashcardState {
   hydrated: boolean;
   hydrate: () => Promise<void>;
   ensureMistakesDeck: () => Promise<FlashcardDeckRecord>;
+  ensureTopicDeck: (slug: string, name: string) => Promise<FlashcardDeckRecord>;
   createDeck: (name: string, description?: string) => Promise<FlashcardDeckRecord>;
+  updateDeck: (deckId: string, patch: Partial<Pick<FlashcardDeckRecord, 'name' | 'description'>>) => Promise<void>;
   deleteDeck: (deckId: string) => Promise<void>;
   addCard: (input: {
     deckId: string;
@@ -51,7 +64,7 @@ export const useFlashcardStore = create<FlashcardState>((set, get) => ({
     const deck: FlashcardDeckRecord = {
       userId,
       deckId: 'mistakes',
-      name: 'Meine Fehler',
+      name: 'My Mistakes',
       isAuto: true,
       createdAt: now,
       updatedAt: now,
@@ -62,15 +75,35 @@ export const useFlashcardStore = create<FlashcardState>((set, get) => ({
     return deck;
   },
 
+  ensureTopicDeck: async (slug, name) => {
+    const id = `topic:${slug}`;
+    const { userId, decks } = get();
+    if (decks[id]) return decks[id];
+    const now = Date.now();
+    const deck: FlashcardDeckRecord = { userId, deckId: id, name, isAuto: false, createdAt: now, updatedAt: now };
+    set({ decks: { ...decks, [id]: deck } });
+    await getStorageAdapter().put('flashcardDecks', `${userId}:${id}`, deck);
+    return deck;
+  },
+
   createDeck: async (name, description) => {
     const { userId, decks } = get();
     const now = Date.now();
-    const deckId = crypto.randomUUID();
+    const deckId = uuid();
     const deck: FlashcardDeckRecord = { userId, deckId, name, description, isAuto: false, createdAt: now, updatedAt: now };
     const next = { ...decks, [deckId]: deck };
     set({ decks: next });
     await getStorageAdapter().put('flashcardDecks', `${userId}:${deckId}`, deck);
     return deck;
+  },
+
+  updateDeck: async (deckId, patch) => {
+    const { userId, decks } = get();
+    const existing = decks[deckId];
+    if (!existing) return;
+    const updated: FlashcardDeckRecord = { ...existing, ...patch, updatedAt: Date.now() };
+    set({ decks: { ...decks, [deckId]: updated } });
+    await getStorageAdapter().put('flashcardDecks', `${userId}:${deckId}`, updated);
   },
 
   deleteDeck: async (deckId) => {
@@ -90,7 +123,7 @@ export const useFlashcardStore = create<FlashcardState>((set, get) => ({
   addCard: async ({ deckId, front, back, tags = [], source }) => {
     const { userId, cards } = get();
     const now = Date.now();
-    const cardId = crypto.randomUUID();
+    const cardId = uuid();
     const card: FlashcardRecord = {
       userId,
       cardId,

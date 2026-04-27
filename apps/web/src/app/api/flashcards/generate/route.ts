@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const body: GenerateBody = await req.json();
-        const { items, language = 'de' } = body;
+        const { items, language = 'en' } = body;
 
         if (!Array.isArray(items) || items.length === 0) {
           emit({ error: 'items must be a non-empty array' });

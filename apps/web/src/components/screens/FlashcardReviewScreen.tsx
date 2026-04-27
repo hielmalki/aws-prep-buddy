@@ -105,21 +105,21 @@ export function FlashcardReviewScreen({ dark = true, deckId }: FlashcardReviewSc
             <div style={{ position: 'absolute', top: 8, right: 18, fontSize: 22 }}>✨</div>
             <div style={{ position: 'absolute', bottom: 14, left: 12, fontSize: 18 }}>🎉</div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 700, marginTop: 18, letterSpacing: -0.4 }}>Du bist auf dem aktuellen Stand</div>
+          <div style={{ fontSize: 22, fontWeight: 700, marginTop: 18, letterSpacing: -0.4 }}>You&apos;re all caught up</div>
           <div style={{ fontSize: 14, color: t.textMuted, marginTop: 8, lineHeight: 1.55, maxWidth: 280 }}>
-            Keine Karten mehr fällig. Nächste Wiederholung: <strong style={{ color: t.text }}>morgen, 8 Karten</strong>.
+            No cards due. Check back tomorrow for your next review.
           </div>
           <button
             onClick={() => router.push('/flashcards')}
             style={{ marginTop: 24, padding: '12px 20px', borderRadius: 12, border: 'none', background: t.text, color: t.bg, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: baseFont }}
           >
-            Neue Karte hinzufügen
+            Add a card
           </button>
           <button
             onClick={() => router.push('/flashcards')}
             style={{ marginTop: 8, padding: '10px 18px', borderRadius: 10, border: 'none', background: 'transparent', color: t.textMuted, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: baseFont }}
           >
-            Zurück zu Decks
+            Back to decks
           </button>
         </div>
       </div>

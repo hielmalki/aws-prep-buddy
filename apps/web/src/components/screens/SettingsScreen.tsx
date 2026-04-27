@@ -6,7 +6,7 @@ import { useSettingsStore, useProgressStore, examProgress } from '@aws-prep/core
 import { useStreakStore } from '@aws-prep/core';
 import { getExamLength, EXAM_COUNT } from '@/lib/data';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Sun, Moon, Trophy, Quiz, Flame, Chevron } from '@/components/icons';
+import { Sun, Moon, Trophy, Quiz, Flame, Chevron, Layers } from '@/components/icons';
 
 interface SettingsScreenProps { dark: boolean; onToggleDark: () => void; }
 
@@ -57,7 +57,7 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
       {/* Header — unchanged */}
       <div style={{ padding: '64px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Einstellungen</div>
+          <div style={{ fontSize: 13, color: t.textMuted, fontWeight: 500 }}>Settings</div>
           <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.5, marginTop: 2 }}>Du</div>
         </div>
         <button onClick={onToggleDark} style={{ width: 38, height: 38, borderRadius: 12, border: `1px solid ${t.border}`, background: t.surface, color: t.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -71,7 +71,7 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
         {/* Stats Row */}
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '16px 0', color: t.textMuted, fontSize: 13 }}>
-            Lade Statistiken…
+            Loading stats…
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
@@ -116,6 +116,29 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
           </div>
         )}
 
+        {/* Tools Section */}
+        <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+          Tools
+        </div>
+        <button
+          onClick={() => router.push('/learn/mindmap')}
+          style={{
+            width: '100%', textAlign: 'left', padding: '14px 16px', borderRadius: 16, marginBottom: 24,
+            background: t.surface, border: `1px solid ${t.border}`,
+            cursor: 'pointer', fontFamily: baseFont, color: t.text,
+            display: 'flex', alignItems: 'center', gap: 14,
+          }}
+        >
+          <div style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Layers size={20} color={t.accent} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>AWS Mindmap</div>
+            <div style={{ fontSize: 12, color: t.textMuted, marginTop: 2 }}>All services at a glance</div>
+          </div>
+          <Chevron size={16} color={t.textMuted} />
+        </button>
+
         {/* Exam History Section */}
         <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
           Exam History
@@ -123,11 +146,11 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
 
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '16px 0', color: t.textMuted, fontSize: 13 }}>
-            Lade Verlauf…
+            Loading history…
           </div>
         ) : examHistoryItems.length === 0 ? (
           <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 18, padding: 20, textAlign: 'center', color: t.textMuted, fontSize: 13, marginBottom: 24 }}>
-            Noch keine Exams gestartet.
+            No exams started yet.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
@@ -167,13 +190,13 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
           </div>
         )}
 
-        {/* Tagesziel — unchanged */}
+        {/* Daily Goal */}
         <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
-          Tagesziel
+          Daily Goal
         </div>
         <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 18, padding: 16 }}>
           <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 14 }}>
-            Wie viele Fragen möchtest du täglich beantworten?
+            How many questions do you want to answer each day?
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             {GOAL_PRESETS.map(n => {
@@ -195,7 +218,7 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
             })}
           </div>
           <div style={{ marginTop: 14, fontSize: 12, color: t.textMuted }}>
-            Aktuell: <span style={{ color: t.accent, fontWeight: 700 }}>{dailyGoal} Fragen</span> pro Tag
+            Current: <span style={{ color: t.accent, fontWeight: 700 }}>{dailyGoal} questions</span> per day
           </div>
         </div>
       </div>
