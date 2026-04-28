@@ -43,6 +43,32 @@ export interface FlashcardDeckRecord {
   updatedAt: number;
 }
 
+export interface TutorMessageRecord {
+  userId: string;
+  sessionId: string;
+  seq: number;
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: number;
+}
+
+export interface TutorSessionRecord {
+  userId: string;
+  sessionId: string;
+  summary: string;
+  summaryUpToSeq: number;
+  turnsSinceMemoryUpdate: number;
+  updatedAt: number;
+}
+
+export interface TutorMemoryRecord {
+  userId: string;
+  goals: string;
+  studyFocus: string;
+  personalNotes: string;
+  updatedAt: number;
+}
+
 export interface FlashcardRecord {
   userId: string;
   cardId: string;

@@ -1,8 +1,8 @@
 import Dexie, { type Table } from 'dexie';
 import { setStorageAdapter } from '@aws-prep/core';
-import type { StorageAdapter, AnswerRecord, SessionRecord, SettingsRecord, StreakRecord, FlashcardDeckRecord, FlashcardRecord } from '@aws-prep/core';
+import type { StorageAdapter, AnswerRecord, SessionRecord, SettingsRecord, StreakRecord, FlashcardDeckRecord, FlashcardRecord, TutorMessageRecord, TutorSessionRecord, TutorMemoryRecord } from '@aws-prep/core';
 
-type AnyRecord = { userId: string; updatedAt: number };
+type AnyRecord = { userId: string; updatedAt?: number };
 
 class AppDatabase extends Dexie {
   answers!: Table<AnswerRecord & { _key: string }>;
@@ -11,6 +11,9 @@ class AppDatabase extends Dexie {
   streak!: Table<StreakRecord & { _key: string }>;
   flashcardDecks!: Table<FlashcardDeckRecord & { _key: string }>;
   flashcards!: Table<FlashcardRecord & { _key: string }>;
+  tutorMessages!: Table<TutorMessageRecord & { _key: string }>;
+  tutorSessions!: Table<TutorSessionRecord & { _key: string }>;
+  tutorMemory!: Table<TutorMemoryRecord & { _key: string }>;
 
   constructor() {
     super('aws-prep-db');
@@ -27,6 +30,17 @@ class AppDatabase extends Dexie {
       streak: '_key, userId',
       flashcardDecks: '_key, userId',
       flashcards: '_key, userId, deckId, dueAt',
+    });
+    this.version(3).stores({
+      answers: '_key, userId, examId, updatedAt',
+      sessions: '_key, userId, updatedAt',
+      settings: '_key, userId',
+      streak: '_key, userId',
+      flashcardDecks: '_key, userId',
+      flashcards: '_key, userId, deckId, dueAt',
+      tutorMessages: '_key, userId, sessionId, seq',
+      tutorSessions: '_key, userId, updatedAt',
+      tutorMemory: '_key, userId',
     });
   }
 }
@@ -47,6 +61,9 @@ function tableFor(name: string) {
     case 'streak': return d.streak;
     case 'flashcardDecks': return d.flashcardDecks;
     case 'flashcards': return d.flashcards;
+    case 'tutorMessages': return d.tutorMessages;
+    case 'tutorSessions': return d.tutorSessions;
+    case 'tutorMemory': return d.tutorMemory;
     default: throw new Error(`Unknown table: ${name}`);
   }
 }

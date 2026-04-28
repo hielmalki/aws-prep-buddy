@@ -18,12 +18,62 @@ interface QuizContext {
   correctLetters?: string[];
 }
 
+interface UserMemory {
+  goals?: string;
+  studyFocus?: string;
+  personalNotes?: string;
+}
+
+interface WeakTopic {
+  topic: string;
+  pct: number;
+  total: number;
+}
+
 interface TutorBody {
   messages: ChatMessage[];
   context?: QuizContext;
+  conversationSummary?: string;
+  userMemory?: UserMemory;
+  weakTopics?: WeakTopic[];
 }
 
 const MAX_MESSAGES = 20;
+
+function buildSystemPrompt(body: TutorBody): string {
+  const blocks: string[] = [TUTOR_SYSTEM_PROMPT];
+
+  const mem = body.userMemory;
+  if (mem && (mem.goals || mem.studyFocus || mem.personalNotes)) {
+    const lines: string[] = ['USER MEMORY:'];
+    if (mem.goals) lines.push(`- Goals: ${mem.goals}`);
+    if (mem.studyFocus) lines.push(`- Study focus: ${mem.studyFocus}`);
+    if (mem.personalNotes) lines.push(`- Notes: ${mem.personalNotes}`);
+    blocks.push(lines.join('\n'));
+  }
+
+  if (body.weakTopics && body.weakTopics.length > 0) {
+    const lines = ['KNOWN WEAKNESSES (lowest accuracy first, from quiz history):'];
+    for (const w of body.weakTopics.slice(0, 5)) {
+      lines.push(`- ${w.topic}: ${w.pct}% over ${w.total} attempts`);
+    }
+    blocks.push(lines.join('\n'));
+  }
+
+  if (body.conversationSummary) {
+    blocks.push(`EARLIER CONVERSATION SUMMARY:\n${body.conversationSummary}`);
+  }
+
+  if (body.context?.questionText) {
+    const picked = body.context.picked?.join(', ') ?? '—';
+    const correct = body.context.correctLetters?.join(', ') ?? '—';
+    blocks.push(
+      `CURRENT QUESTION CONTEXT:\nQuestion: ${body.context.questionText}\nUser selected: ${picked}\nCorrect answer(s): ${correct}`,
+    );
+  }
+
+  return blocks.join('\n\n');
+}
 
 export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
@@ -36,7 +86,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const body: TutorBody = await req.json();
-        const { messages, context } = body;
+        const { messages } = body;
 
         if (!Array.isArray(messages) || messages.length === 0) {
           emit({ error: 'messages must be a non-empty array' });
@@ -53,16 +103,8 @@ export async function POST(req: NextRequest) {
 
         const client = new OpenAI({ apiKey });
 
-        // Apply sliding window
         const windowedMessages = messages.slice(-MAX_MESSAGES);
-
-        // Build context injection if quiz question is provided
-        let systemPrompt = TUTOR_SYSTEM_PROMPT;
-        if (context?.questionText) {
-          const picked = context.picked?.join(', ') ?? '—';
-          const correct = context.correctLetters?.join(', ') ?? '—';
-          systemPrompt += `\n\nCURRENT QUESTION CONTEXT:\nQuestion: ${context.questionText}\nUser selected: ${picked}\nCorrect answer(s): ${correct}`;
-        }
+        const systemPrompt = buildSystemPrompt(body);
 
         const response = await client.chat.completions.create({
           model: 'gpt-4o-mini',

@@ -27,6 +27,7 @@ export {
   useFlashcardStore,
   dueCardsForDeck,
   totalCardsForDeck,
+  useTutorStore,
 } from './store/index.js';
 export type {
   StorageAdapter,
@@ -38,4 +39,9 @@ export type {
   StreakRecord,
   FlashcardDeckRecord,
   FlashcardRecord,
+  TutorMessageRecord,
+  TutorSessionRecord,
+  TutorMemoryRecord,
 } from './store/index.js';
+export { computeTopicAccuracy, weakestTopics } from './topic-accuracy.js';
+export type { TopicAccuracy, TopicLookup, WeakestTopicsOptions } from './topic-accuracy.js';
