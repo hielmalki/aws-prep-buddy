@@ -17,14 +17,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FF9900',
+  themeColor: '#0A84FF',
   viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={jetbrainsMono.variable}>
-      <body style={{ minHeight: '100dvh', background: '#0F172A' }}>
+      <body style={{ minHeight: '100dvh', background: '#000000' }}>
           <StorageProvider>{children}</StorageProvider>
         </body>
     </html>

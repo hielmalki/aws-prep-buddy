@@ -7,6 +7,7 @@ interface Props {
   searchParams: Promise<{ exam?: string; q?: string }>;
 }
 
+
 export default async function QuizPage({ searchParams }: Props) {
   const { exam, q } = await searchParams;
 
