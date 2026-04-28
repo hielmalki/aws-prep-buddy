@@ -183,7 +183,7 @@ export function CardEditorSheet({ dark, open, onClose, deckId, cardId }: CardEdi
                   #{tag}
                   <button onClick={() => setTags(ts => ts.filter(t2 => t2 !== tag))} style={{
                     width: 16, height: 16, borderRadius: 8, border: 'none', cursor: 'pointer',
-                    background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(255,153,0,0.2)',
+                    background: t.accentHair,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
                   }}>
                     <X size={10} color={t.accent}/>

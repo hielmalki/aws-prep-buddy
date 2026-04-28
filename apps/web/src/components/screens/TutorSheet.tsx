@@ -187,8 +187,8 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
 
         {/* header */}
         <div style={{ padding: '6px 16px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Sparkle size={18} color="#fff"/>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: t.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Sparkle size={18} color={t.accentText}/>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700 }}>AI Tutor</div>

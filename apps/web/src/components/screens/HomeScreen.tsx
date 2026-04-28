@@ -51,14 +51,14 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
 
           {/* Streak + Goal card */}
           <div style={{
-            background: dark ? 'linear-gradient(135deg, #1E293B 0%, #1B2A44 100%)' : '#FFFFFF',
-            border: `1px solid ${t.border}`, borderRadius: 20,
+            background: t.surface,
+            border: `0.5px solid ${t.border}`, borderRadius: 20,
             padding: 18, display: 'flex', alignItems: 'center', gap: 16,
-            boxShadow: dark ? 'none' : '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.04)',
+            boxShadow: t.shadow,
           }}>
             <AnimatedProgressRing targetPct={progressPct} current={todayAnswered} target={dailyGoal} t={t}/>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, background: 'rgba(255,153,0,0.14)', color: t.accent, fontSize: 11, fontWeight: 700, letterSpacing: 0.3 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 9px', borderRadius: 999, background: t.accentSoft, color: t.accent, fontSize: 11, fontWeight: 700, letterSpacing: 0.3 }}>
                 <Flame size={12} color={t.accent}/> {stats.streakDays} DAY STREAK
               </div>
               <div style={{ fontSize: 15, fontWeight: 600, marginTop: 8, lineHeight: 1.3 }}>Daily goal</div>
@@ -110,13 +110,12 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
             <div style={{
               position: 'relative', overflow: 'hidden',
               borderRadius: 20, padding: 18,
-              background: dark
-                ? `radial-gradient(120% 90% at 0% 0%, rgba(255,153,0,0.35) 0%, transparent 55%), linear-gradient(135deg, #1B2541 0%, #0F172A 100%)`
-                : `radial-gradient(120% 90% at 0% 0%, rgba(255,153,0,0.3) 0%, transparent 55%), linear-gradient(135deg, #FFFFFF 0%, #FFF5E6 100%)`,
-              border: `1px solid ${t.border}`,
+              background: t.surface,
+              border: `0.5px solid ${t.border}`,
+              boxShadow: t.shadow,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 20px rgba(255,153,0,0.35)' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: t.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 20px rgba(0,113,227,0.35)' }}>
                   <Sparkle size={24} color="#fff"/>
                 </div>
                 <div style={{ flex: 1 }}>
@@ -127,7 +126,7 @@ export function HomeScreen({ dark, onToggleDark }: HomeScreenProps) {
               </div>
               <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
                 {['What is a NAT Gateway?', 'S3 vs EFS?', 'IAM explained'].map(p => (
-                  <span key={p} style={{ fontSize: 11, padding: '6px 10px', borderRadius: 999, background: dark ? 'rgba(255,255,255,0.06)' : '#fff', border: `1px solid ${t.border}`, color: t.textMuted, fontWeight: 500 }}>{p}</span>
+                  <span key={p} style={{ fontSize: 11, padding: '6px 10px', borderRadius: 999, background: t.surface2, border: `0.5px solid ${t.border}`, color: t.textMuted, fontWeight: 500 }}>{p}</span>
                 ))}
               </div>
             </div>

@@ -33,7 +33,7 @@ export function LearnScreen({ dark }: LearnScreenProps) {
       <div style={{ flex: 1, overflow: 'auto', padding: '18px 20px 120px' }}>
         {/* Topic header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(255,153,0,0.3)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 14, background: t.accent, color: t.accentText, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,113,227,0.3)' }}>
             <Server size={26} color="#fff"/>
           </div>
           <div>
@@ -100,7 +100,7 @@ export function LearnScreen({ dark }: LearnScreenProps) {
         <h3 style={{ fontSize: 18, fontWeight: 700, margin: '24px 0 8px', letterSpacing: -0.3 }}>CLI Example</h3>
         <pre style={{ margin: 0, padding: '14px 16px', borderRadius: 12, background: dark ? '#0B1120' : slate900, color: '#E2E8F0', fontFamily: mono, fontSize: 12, lineHeight: 1.6, overflow: 'auto', border: `1px solid ${t.border}` }}>
           <div><span style={{ color: '#64748B' }}># Start a t3.micro instance</span></div>
-          <div><span style={{ color: '#FFB545' }}>aws</span> ec2 run-instances <span style={{ color: '#94A3B8' }}>\</span></div>
+          <div><span style={{ color: t.warning }}>aws</span> ec2 run-instances <span style={{ color: '#94A3B8' }}>\</span></div>
           <div>{'  '}<span style={{ color: '#4ADE80' }}>--image-id</span> ami-0abc123 <span style={{ color: '#94A3B8' }}>\</span></div>
           <div>{'  '}<span style={{ color: '#4ADE80' }}>--instance-type</span> t3.micro <span style={{ color: '#94A3B8' }}>\</span></div>
           <div>{'  '}<span style={{ color: '#4ADE80' }}>--key-name</span> my-key</div>
@@ -116,7 +116,7 @@ export function LearnScreen({ dark }: LearnScreenProps) {
         </p>
 
         {/* CTA */}
-        <div style={{ marginTop: 22, padding: 16, borderRadius: 18, background: dark ? `linear-gradient(135deg, #1E293B 0%, #1B2A44 100%)` : '#FFF', border: `1px solid ${t.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ marginTop: 22, padding: 16, borderRadius: 18, background: t.surface, border: `0.5px solid ${t.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: t.accentSoft, color: t.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Target size={22} color={t.accent}/>
           </div>

@@ -18,7 +18,7 @@ interface QuizScreenProps {
   dark?: boolean;
 }
 
-export function QuizScreen({ question, examId, questionNum, total, dark = true }: QuizScreenProps) {
+export function QuizScreen({ question, examId, questionNum, total, dark = false }: QuizScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const recordAnswer = useProgressStore(s => s.recordAnswer);
@@ -81,7 +81,7 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
               <Chip key={topic} color={t.accent} bg={t.accentSoft}>{topic}</Chip>
             ))}
             {isMulti && (
-              <Chip color={t.textMuted} bg={dark ? 'rgba(255,255,255,0.04)' : '#F1F5F9'} border={t.border}>
+              <Chip color={t.textMuted} bg={t.surface2} border={t.border}>
                 Multiple answers
               </Chip>
             )}
@@ -166,8 +166,8 @@ export function QuizScreen({ question, examId, questionNum, total, dark = true }
           cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           boxShadow: '0 8px 30px rgba(0,0,0,0.15)', zIndex: 30,
         }}>
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)` }}>
-            <Sparkle size={16} color="#fff"/>
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 8, background: t.accent }}>
+            <Sparkle size={16} color={t.accentText}/>
           </span>
           Ask AI about this question
         </button>

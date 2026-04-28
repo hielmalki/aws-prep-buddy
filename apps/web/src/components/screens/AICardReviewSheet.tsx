@@ -297,11 +297,11 @@ export function AICardReviewSheet({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 11,
-                background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`,
+                background: t.accent,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                boxShadow: '0 6px 18px rgba(255,153,0,0.35)',
+                boxShadow: '0 6px 18px rgba(0,113,227,0.35)',
               }}>
-                <Sparkle size={20} color="#fff" />
+                <Sparkle size={20} color={t.accentText} />
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
@@ -335,7 +335,7 @@ export function AICardReviewSheet({
 
           {/* Error state */}
           {error && (
-            <div style={{ margin: '0 18px 12px', padding: '12px 14px', borderRadius: 12, background: dark ? 'rgba(248,113,113,0.12)' : '#FEF2F2', color: dark ? '#F87171' : '#DC2626', fontSize: 13 }}>
+            <div style={{ margin: '0 18px 12px', padding: '12px 14px', borderRadius: 12, background: t.dangerSoft, color: t.danger, fontSize: 13 }}>
               {error}
             </div>
           )}
@@ -381,7 +381,7 @@ export function AICardReviewSheet({
                 fontFamily: baseFont, fontSize: 14, fontWeight: 700,
                 cursor: (streaming || acceptedCount === 0 || saving) ? 'default' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                boxShadow: (streaming || acceptedCount === 0 || saving) || dark ? 'none' : '0 8px 24px rgba(255,153,0,0.35)',
+                boxShadow: (streaming || acceptedCount === 0 || saving) || dark ? 'none' : '0 8px 24px rgba(0,113,227,0.35)',
                 transition: 'background .2s',
               }}
             >
@@ -427,13 +427,13 @@ function SkeletonRow({ dark, t }: RowProps) {
     }}>
       <div style={{
         height: 12, borderRadius: 6, width: '85%',
-        background: dark ? 'rgba(148,163,184,0.12)' : '#F1F5F9',
+        background: t.surface3,
         backgroundImage: 'linear-gradient(90deg, transparent 0, rgba(255,255,255,0.5) 50%, transparent 100%)',
         backgroundSize: '200% 100%',
         animation: 'fcshimmer 1.4s infinite',
       }} />
-      <div style={{ height: 10, borderRadius: 5, background: dark ? 'rgba(148,163,184,0.08)' : '#F8FAFC', width: '60%' }} />
-      <div style={{ height: 10, borderRadius: 5, background: dark ? 'rgba(148,163,184,0.08)' : '#F8FAFC', width: '70%' }} />
+      <div style={{ height: 10, borderRadius: 5, background: t.surface2, width: '60%' }} />
+      <div style={{ height: 10, borderRadius: 5, background: t.surface2, width: '70%' }} />
     </div>
   );
 }
@@ -461,8 +461,8 @@ function CardRow({ card, dark, t, onToggleAccept, onEdit }: CardRowProps) {
           <div style={{ fontSize: 12, color: t.textMuted, marginTop: 5, lineHeight: 1.5 }}>{card.back}</div>
         ) : (
           <div style={{ marginTop: 7, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div style={{ height: 8, borderRadius: 4, background: dark ? 'rgba(148,163,184,0.16)' : '#F1F5F9', width: '90%', backgroundImage: 'linear-gradient(90deg, transparent 0, rgba(255,153,0,0.3) 50%, transparent 100%)', backgroundSize: '200% 100%', animation: 'fcshimmer 1.4s infinite' }}/>
-            <div style={{ height: 8, borderRadius: 4, background: dark ? 'rgba(148,163,184,0.10)' : '#F8FAFC', width: '60%' }}/>
+            <div style={{ height: 8, borderRadius: 4, background: t.surface3, width: '90%', backgroundImage: `linear-gradient(90deg, transparent 0, ${t.accentSoft} 50%, transparent 100%)`, backgroundSize: '200% 100%', animation: 'fcshimmer 1.4s infinite' }}/>
+            <div style={{ height: 8, borderRadius: 4, background: t.surface2, width: '60%' }}/>
           </div>
         )}
         {(card.tags.length > 0 || card.copyrightWarning) && (

@@ -27,7 +27,7 @@ function ModuleIcon({ icon, size, color }: { icon: LearnModule['icon']; size: nu
 
 const VISIBLE_MODULES = LEARN_MODULES.filter(m => m.slug !== 'other');
 
-export function LearnIndexScreen({ dark = true }: LearnIndexScreenProps) {
+export function LearnIndexScreen({ dark = false }: LearnIndexScreenProps) {
   const t = theme(dark);
   const router = useRouter();
 
@@ -44,12 +44,12 @@ export function LearnIndexScreen({ dark = true }: LearnIndexScreenProps) {
           onClick={() => router.push('/flashcards')}
           style={{
             textAlign: 'left', padding: '14px 16px', borderRadius: 16,
-            background: t.surface, border: `1px solid rgba(255,153,0,0.45)`,
+            background: t.surface, border: `0.5px solid ${t.accentHair}`,
             cursor: 'pointer', fontFamily: baseFont, color: t.text,
             display: 'flex', alignItems: 'center', gap: 14,
           }}
         >
-          <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: 'rgba(255,153,0,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+          <div style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: t.accentSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
             🃏
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>

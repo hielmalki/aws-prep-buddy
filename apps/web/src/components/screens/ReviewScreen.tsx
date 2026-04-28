@@ -16,7 +16,7 @@ interface ReviewScreenProps {
   dark?: boolean;
 }
 
-export function ReviewScreen({ examId, total, startIndex, dark = true }: ReviewScreenProps) {
+export function ReviewScreen({ examId, total, startIndex, dark = false }: ReviewScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const answers = useProgressStore(s => s.answers);
@@ -110,7 +110,7 @@ export function ReviewScreen({ examId, total, startIndex, dark = true }: ReviewS
             <Chip key={topic} color={t.accent} bg={t.accentSoft}>{topic}</Chip>
           ))}
           {isMulti && (
-            <Chip color={t.textMuted} bg={dark ? 'rgba(255,255,255,0.04)' : '#F1F5F9'} border={t.border}>
+            <Chip color={t.textMuted} bg={t.surface2} border={t.border}>
               Multiple answers
             </Chip>
           )}

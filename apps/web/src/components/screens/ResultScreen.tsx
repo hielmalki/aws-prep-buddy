@@ -99,7 +99,7 @@ function ModuleCard({
           onClick={onCreateCards}
           style={{
             width: '100%', padding: '9px 12px', borderRadius: 10, boxSizing: 'border-box',
-            border: `1px dashed ${dark ? 'rgba(255,153,0,0.4)' : 'rgba(232,136,0,0.4)'}`,
+            border: `1px dashed ${t.accentHair}`,
             background: t.accentSoft, color: t.accent,
             fontFamily: baseFont, fontSize: 12, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -113,7 +113,7 @@ function ModuleCard({
   );
 }
 
-export function ResultScreen({ examId, total, dark = true }: ResultScreenProps) {
+export function ResultScreen({ examId, total, dark = false }: ResultScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const answers = useProgressStore(s => s.answers);

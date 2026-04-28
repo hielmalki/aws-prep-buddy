@@ -53,7 +53,7 @@ function RenameDeckModal({ dark, open, currentName, onSave, onClose }: {
           onKeyDown={e => { if (e.key === 'Enter' && name.trim()) onSave(name.trim()); }}
           style={{
             width: '100%', padding: '12px 14px', borderRadius: 12, boxSizing: 'border-box',
-            background: dark ? '#0F172A' : '#F8FAFC', color: t.text, fontFamily: baseFont,
+            background: t.surface2, color: t.text, fontFamily: baseFont,
             fontSize: 15, fontWeight: 600, border: `1.5px solid ${t.accent}`, outline: 'none',
           }}
         />
@@ -64,8 +64,8 @@ function RenameDeckModal({ dark, open, currentName, onSave, onClose }: {
           }}>Cancel</button>
           <button onClick={() => name.trim() && onSave(name.trim())} disabled={!name.trim()} style={{
             flex: 1, padding: '11px 0', borderRadius: 12, border: 'none',
-            background: name.trim() ? `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)` : t.border,
-            color: name.trim() ? '#fff' : t.textMuted,
+            background: name.trim() ? t.accent : t.border,
+            color: name.trim() ? t.accentText : t.textMuted,
             fontFamily: baseFont, fontSize: 14, fontWeight: 700, cursor: name.trim() ? 'pointer' : 'default',
           }}>Save</button>
         </div>
@@ -116,7 +116,7 @@ function ConfirmDeleteModal({ dark, open, deckName, onConfirm, onCancel }: {
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
             flex: 1, padding: '11px 0', borderRadius: 12, border: 'none',
-            background: '#EF4444', color: '#fff',
+            background: t.danger, color: '#fff',
             fontFamily: baseFont, fontSize: 14, fontWeight: 700, cursor: 'pointer',
           }}>Delete</button>
         </div>
@@ -126,7 +126,7 @@ function ConfirmDeleteModal({ dark, open, deckName, onConfirm, onCancel }: {
 }
 
 // ── Main Screen ────────────────────────────────────────────
-export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps) {
+export function DeckDetailScreen({ deckId, dark = false }: DeckDetailScreenProps) {
   const t = theme(dark);
   const router = useRouter();
 
@@ -148,7 +148,7 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
 
   if (!hydrated) {
     return (
-      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: baseFont, color: t.textMuted }}>
+      <div style={{ background: t.bg, height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: baseFont, color: t.textMuted }}>
         Loading…
       </div>
     );
@@ -157,7 +157,7 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
   const deck = decks[deckId];
   if (!deck) {
     return (
-      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: baseFont, color: t.textMuted }}>
+      <div style={{ background: t.bg, height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: baseFont, color: t.textMuted }}>
         Deck not found.
       </div>
     );
@@ -189,7 +189,7 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
 
   return (
     <>
-      <div style={{ background: t.bgGrad, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
+      <div style={{ background: t.bg, height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: baseFont, color: t.text, position: 'relative' }}>
         {/* Header */}
         <div style={{ padding: '60px 20px 14px', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
           <button
@@ -222,10 +222,10 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
               onClick={() => router.push(`/flashcards/review?deck=${encodeURIComponent(deckId)}`)}
               style={{
                 width: '100%', height: 46, borderRadius: 14, border: 'none',
-                background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`,
-                color: '#fff', fontSize: 14, fontWeight: 700, fontFamily: baseFont,
+                background: t.accent,
+                color: t.accentText, fontSize: 14, fontWeight: 700, fontFamily: baseFont,
                 cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                boxShadow: '0 6px 20px rgba(255,153,0,0.35)',
+                boxShadow: '0 6px 20px rgba(0,113,227,0.35)',
               }}
             >
               Start Review <Chevron size={16} color="#fff" />
@@ -275,10 +275,10 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
           style={{
             position: 'absolute', right: 20, bottom: 100,
             width: 56, height: 56, borderRadius: 18, border: 'none',
-            background: `linear-gradient(135deg, ${t.accent} 0%, #FFB545 100%)`,
-            color: '#fff', cursor: 'pointer',
+            background: t.accent,
+            color: t.accentText, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 10px 28px rgba(255,153,0,0.45), 0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: '0 10px 28px rgba(0,113,227,0.45), 0 4px 12px rgba(0,0,0,0.15)',
             zIndex: 35,
           }}
         >
@@ -291,9 +291,9 @@ export function DeckDetailScreen({ deckId, dark = true }: DeckDetailScreenProps)
             <button
               onClick={() => setConfirmDeleteOpen(true)}
               style={{
-                height: 44, padding: '0 16px', borderRadius: 14, border: `1px solid ${dark ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.5)'}`,
-                background: dark ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)',
-                color: '#EF4444', fontSize: 13, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer',
+                height: 44, padding: '0 16px', borderRadius: 14, border: `0.5px solid ${t.dangerSoft}`,
+                background: t.dangerSoft,
+                color: t.danger, fontSize: 13, fontWeight: 700, fontFamily: baseFont, cursor: 'pointer',
               }}
             >
               Delete Deck

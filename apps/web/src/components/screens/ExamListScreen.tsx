@@ -9,7 +9,7 @@ import { Quiz, Check } from '@/components/icons';
 
 interface ExamListScreenProps { dark?: boolean; }
 
-export function ExamListScreen({ dark = true }: ExamListScreenProps) {
+export function ExamListScreen({ dark = false }: ExamListScreenProps) {
   const t = theme(dark);
   const router = useRouter();
   const answers = useProgressStore(s => s.answers);

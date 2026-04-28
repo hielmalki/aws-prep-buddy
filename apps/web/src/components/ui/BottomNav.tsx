@@ -6,10 +6,10 @@ import Link from 'next/link';
 export type NavId = 'home' | 'learn' | 'quiz' | 'settings';
 
 const items: { id: NavId; label: string; href: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
-  { id: 'home',     label: 'Home',    href: '/',           Icon: Home },
+  { id: 'home',     label: 'Home',       href: '/',           Icon: Home },
   { id: 'learn',    label: 'Flashcards', href: '/flashcards', Icon: Book },
-  { id: 'quiz',     label: 'Quiz',    href: '/quiz',       Icon: Quiz },
-  { id: 'settings', label: 'Du',      href: '/settings',   Icon: Settings },
+  { id: 'quiz',     label: 'Quiz',       href: '/quiz',       Icon: Quiz },
+  { id: 'settings', label: 'Du',         href: '/settings',   Icon: Settings },
 ];
 
 interface BottomNavProps { active: NavId; t: Theme; }
@@ -18,11 +18,11 @@ export function BottomNav({ active, t }: BottomNavProps) {
   return (
     <div style={{
       position: 'absolute', bottom: 0, left: 0, right: 0,
-      paddingBottom: 'env(safe-area-inset-bottom, 20px)', paddingTop: 8,
+      paddingBottom: 'env(safe-area-inset-bottom, 34px)', paddingTop: 8,
       background: t.navBg,
       backdropFilter: 'blur(20px) saturate(180%)',
       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      borderTop: `1px solid ${t.border}`,
+      borderTop: `0.5px solid ${t.border}`,
       display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end',
       zIndex: 40,
     }}>
@@ -36,9 +36,8 @@ export function BottomNav({ active, t }: BottomNavProps) {
             minWidth: 56, padding: '6px 4px', color: col,
             fontFamily: baseFont, position: 'relative', textDecoration: 'none',
           }}>
-            {on && <div style={{ position: 'absolute', top: -9, width: 24, height: 3, borderRadius: 2, background: t.accent }}/>}
-            <Icon size={22} color={col} />
-            <span style={{ fontSize: 10, fontWeight: on ? 700 : 500, letterSpacing: 0.2 }}>{label}</span>
+            <Icon size={24} color={col} />
+            <span style={{ fontSize: 10, fontWeight: on ? 600 : 500, letterSpacing: 0.1 }}>{label}</span>
           </Link>
         );
       })}
