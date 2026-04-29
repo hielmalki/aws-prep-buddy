@@ -29,6 +29,56 @@ interface TutorSheetProps {
 
 const QUICK_CHIPS = ['Explain simpler', 'Give an example', 'Why is this wrong?', 'Memory trick?'];
 
+const TOPIC_LABELS: Record<string, string> = {
+  EC2:        'Amazon EC2',
+  S3:         'Amazon S3',
+  IAM:        'Identity & Access Management',
+  VPC:        'Virtual Private Cloud (VPC)',
+  RDS:        'Amazon RDS',
+  Lambda:     'AWS Lambda',
+  CloudWatch: 'Amazon CloudWatch',
+  Billing:    'Billing & Cost Management',
+  Support:    'AWS Support Plans',
+  Security:   'Security & Compliance',
+  Networking: 'Networking & CDN',
+  Compute:    'Compute in the Cloud',
+  Storage:    'Storage Services',
+  Databases:  'Database Services',
+  Migration:  'Cloud Migration',
+};
+
+function renderMarkdown(raw: string): string {
+  const esc = raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const lines = esc.split('\n');
+  const out: string[] = [];
+  let inList = false;
+
+  for (const line of lines) {
+    const li = /^[-*] (.+)/.exec(line);
+    if (li) {
+      if (!inList) { out.push('<ul style="margin:4px 0;padding-left:16px;">'); inList = true; }
+      out.push(`<li style="margin:2px 0">${applyInline(li[1])}</li>`);
+    } else {
+      if (inList) { out.push('</ul>'); inList = false; }
+      if (line.trim() === '') {
+        out.push('<div style="height:6px"></div>');
+      } else {
+        out.push(`<div>${applyInline(line)}</div>`);
+      }
+    }
+  }
+  if (inList) out.push('</ul>');
+  return out.join('');
+}
+
+function applyInline(text: string): string {
+  return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
 const WIRE_TURN_LIMIT = 16;        // last N messages sent verbatim
 const COMPRESS_THRESHOLD = 24;     // start compressing when stored messages reach this
 const COMPRESS_KEEP_TAIL = 8;      // keep this many recent messages after compression
@@ -179,7 +229,7 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
             studyFocus: store.memory.studyFocus,
             personalNotes: store.memory.personalNotes,
           } : undefined,
-          weakTopics: weakTopics.map(w => ({ topic: w.topic, pct: w.pct, total: w.total })),
+          weakTopics: weakTopics.map(w => ({ topic: TOPIC_LABELS[w.topic] ?? w.topic, pct: w.pct, total: w.total })),
         }),
       });
 
@@ -353,9 +403,13 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
                 border: m.role === 'user' ? 'none' : `1px solid ${t.border}`,
                 borderBottomRightRadius: m.role === 'user' ? 4 : 16,
                 borderBottomLeftRadius: m.role === 'user' ? 16 : 4,
-                whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                wordBreak: 'break-word',
               }}>
-                {m.content}
+                {m.role === 'user' ? (
+                  <span style={{ whiteSpace: 'pre-wrap' }}>{m.content}</span>
+                ) : (
+                  <span dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }}/>
+                )}
                 {streaming && i === allDisplayed.length - 1 && m.role === 'assistant' && (
                   <span style={{ display: 'inline-block', width: 2, height: 14, background: t.accent, marginLeft: 2, verticalAlign: 'middle', animation: 'blink 1s step-end infinite' }}/>
                 )}
