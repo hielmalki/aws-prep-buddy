@@ -8,11 +8,13 @@ interface SettingsState {
   userId: string;
   theme: 'light' | 'dark' | 'system';
   llmProvider: 'openai';
+  llmKey: string;
   dailyGoal: number;
   hydrated: boolean;
   hydrate: () => Promise<void>;
   setTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;
   setLlmProvider: (provider: 'openai') => Promise<void>;
+  setLlmKey: (key: string) => Promise<void>;
   setDailyGoal: (n: number) => Promise<void>;
 }
 
@@ -21,6 +23,7 @@ async function persist(state: SettingsState): Promise<void> {
     userId: state.userId,
     theme: state.theme,
     llmProvider: state.llmProvider,
+    llmKey: state.llmKey || undefined,
     dailyGoal: state.dailyGoal,
     updatedAt: Date.now(),
   };
@@ -31,6 +34,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   userId: 'local',
   theme: 'system',
   llmProvider: 'openai',
+  llmKey: '',
   dailyGoal: DEFAULT_DAILY_GOAL,
   hydrated: false,
 
@@ -41,6 +45,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       set({
         theme: record.theme,
         llmProvider: 'openai',
+        llmKey: record.llmKey ?? '',
         dailyGoal: record.dailyGoal ?? DEFAULT_DAILY_GOAL,
         hydrated: true,
       });
@@ -57,6 +62,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   setLlmProvider: async (llmProvider) => {
     set({ llmProvider });
     await persist({ ...get(), llmProvider });
+  },
+
+  setLlmKey: async (llmKey) => {
+    set({ llmKey });
+    await persist({ ...get(), llmKey });
   },
 
   setDailyGoal: async (n) => {

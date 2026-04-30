@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { theme, baseFont } from '@/lib/theme';
-import { useFlashcardStore } from '@aws-prep/core';
+import { useFlashcardStore, useSettingsStore } from '@aws-prep/core';
 import { getQuestion } from '@/lib/data';
 import { CardEditorSheet } from '@/components/ui/CardEditorSheet';
 import { Close, Sparkle, Check, X, Edit } from '@/components/icons';
@@ -75,6 +75,7 @@ export function AICardReviewSheet({
 }: AICardReviewSheetProps) {
   const t = theme(dark);
   const addCard = useFlashcardStore(s => s.addCard);
+  const llmKey = useSettingsStore(s => s.llmKey);
 
   const [mounted, setMounted] = useState(false);
   const [streaming, setStreaming] = useState(false);
@@ -112,7 +113,7 @@ export function AICardReviewSheet({
       try {
         const res = await fetch('/api/flashcards/generate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(llmKey ? { 'X-LLM-Key': llmKey } : {}) },
           body: JSON.stringify({ items, deckId }),
           signal: abort.signal,
         });

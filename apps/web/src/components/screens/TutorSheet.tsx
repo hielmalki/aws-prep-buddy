@@ -5,6 +5,7 @@ import { Sparkle, Close, Clip, Send } from '@/components/icons';
 import {
   useTutorStore,
   useProgressStore,
+  useSettingsStore,
   computeTopicAccuracy,
   weakestTopics,
   type TopicAccuracy,
@@ -98,6 +99,7 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
 
   const answers = useProgressStore(s => s.answers);
   const progressHydrated = useProgressStore(s => s.hydrated);
+  const llmKey = useSettingsStore(s => s.llmKey);
 
   const [streamingContent, setStreamingContent] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -142,7 +144,7 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
     try {
       const res = await fetch('/api/tutor/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(llmKey ? { 'X-LLM-Key': llmKey } : {}) },
         body: JSON.stringify({
           mode: 'compress',
           messages: toCompress.map(m => ({ role: m.role, content: m.content })),
@@ -167,7 +169,7 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
     try {
       const res = await fetch('/api/tutor/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(llmKey ? { 'X-LLM-Key': llmKey } : {}) },
         body: JSON.stringify({
           mode: 'memory',
           messages: recent,
@@ -212,7 +214,7 @@ export function TutorSheet({ dark, open, onClose, context }: TutorSheetProps) {
     try {
       const res = await fetch('/api/tutor', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(llmKey ? { 'X-LLM-Key': llmKey } : {}) },
         signal: controller.signal,
         body: JSON.stringify({
           messages: wireMsgs,

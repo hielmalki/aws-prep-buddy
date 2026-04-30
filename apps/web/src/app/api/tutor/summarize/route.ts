@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'messages must be a non-empty array' }, { status: 400 });
   }
 
-  const apiKey = await getOpenAIKey();
+  const apiKey = req.headers.get('X-LLM-Key') || await getOpenAIKey();
   if (!apiKey) {
     return NextResponse.json(
       { error: 'No OpenAI API key configured. Set OPENAI_API_KEY or add it to llm-keys.json.' },

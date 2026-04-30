@@ -1,5 +1,5 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { theme, baseFont } from '@/lib/theme';
 import { useSettingsStore, useProgressStore, examProgress } from '@aws-prep/core';
@@ -18,6 +18,10 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
 
   const dailyGoal = useSettingsStore(s => s.dailyGoal);
   const setDailyGoal = useSettingsStore(s => s.setDailyGoal);
+  const llmKey = useSettingsStore(s => s.llmKey);
+  const setLlmKey = useSettingsStore(s => s.setLlmKey);
+  const [keyDraft, setKeyDraft] = useState('');
+  const [keySaved, setKeySaved] = useState(false);
 
   const answers = useProgressStore(s => s.answers);
   const stats = useProgressStore(s => s.stats);
@@ -32,6 +36,10 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
     if (!hydrated) hydrate();
     if (!streakHydrated) hydrateStreak();
   }, [hydrated, hydrate, streakHydrated, hydrateStreak]);
+
+  useEffect(() => {
+    if (hydrated) setKeyDraft(llmKey);
+  }, [hydrated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Build exam history list (only exams with answered > 0)
   const examHistoryItems = [];
@@ -189,6 +197,48 @@ export function SettingsScreen({ dark, onToggleDark }: SettingsScreenProps) {
             ))}
           </div>
         )}
+
+        {/* OpenAI API Key */}
+        <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>
+          OpenAI API Key
+        </div>
+        <div style={{ background: t.surface, border: `1px solid ${t.border}`, borderRadius: 18, padding: 16, marginBottom: 24 }}>
+          <div style={{ fontSize: 13, color: t.textMuted, marginBottom: 12 }}>
+            Dein eigener Key wird nur lokal gespeichert und direkt mit OpenAI verwendet.
+          </div>
+          <input
+            type="password"
+            value={keyDraft}
+            onChange={e => { setKeyDraft(e.target.value); setKeySaved(false); }}
+            onPaste={e => { setKeyDraft(e.clipboardData.getData('text')); setKeySaved(false); e.preventDefault(); }}
+            placeholder="sk-..."
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '10px 14px', borderRadius: 12,
+              border: `1.5px solid ${t.border}`,
+              background: t.bg, color: t.text,
+              fontSize: 14, fontFamily: baseFont,
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={async () => { await setLlmKey(keyDraft.trim()); setKeySaved(true); }}
+            style={{
+              marginTop: 12, width: '100%', padding: '11px 0', borderRadius: 12,
+              background: keySaved ? '#22c55e' : t.accent,
+              color: '#fff', border: 'none',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: baseFont,
+              transition: 'background 0.2s',
+            }}
+          >
+            {keySaved ? 'Gespeichert ✓' : 'Speichern'}
+          </button>
+          {llmKey && (
+            <div style={{ marginTop: 10, fontSize: 12, color: t.textMuted }}>
+              Aktuell: <span style={{ color: t.accent, fontWeight: 700 }}>sk-...{llmKey.slice(-4)}</span>
+            </div>
+          )}
+        </div>
 
         {/* Daily Goal */}
         <div style={{ fontSize: 11, fontWeight: 700, color: t.textMuted, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>

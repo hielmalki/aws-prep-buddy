@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
           return;
         }
 
-        const apiKey = await getOpenAIKey();
+        const apiKey = req.headers.get('X-LLM-Key') || await getOpenAIKey();
         if (!apiKey) {
           emit({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY or add it to llm-keys.json.' });
           controller.close();

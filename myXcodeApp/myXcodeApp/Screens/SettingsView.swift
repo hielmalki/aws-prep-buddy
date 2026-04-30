@@ -6,6 +6,7 @@ struct SettingsView: View {
     @ObservedObject private var content = ContentRepository.shared
     @State private var showResetAlert = false
     @State private var apiKeyVisible = false
+    @State private var apiKeySaved = false
 
     var body: some View {
         ZStack {
@@ -48,18 +49,42 @@ struct SettingsView: View {
                             Group {
                                 if apiKeyVisible {
                                     TextField("sk-…", text: $settings.openAIKey)
-                                        .autocorrectionDisabled()
                                 } else {
-                                    SecureField("OpenAI API Key", text: $settings.openAIKey)
+                                    SecureField("sk-…", text: $settings.openAIKey)
                                 }
                             }
                             .font(.appBody)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                            .textContentType(.oneTimeCode)
+                            .onChange(of: settings.openAIKey) { _ in apiKeySaved = false }
                             Button(action: { apiKeyVisible.toggle() }) {
                                 Image(systemName: apiKeyVisible ? "eye.slash" : "eye")
                                     .foregroundStyle(AppColor.textMuted)
                             }
                         }
                         Divider()
+                        Button(action: {
+                            apiKeySaved = true
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }) {
+                            HStack {
+                                Spacer()
+                                Text(apiKeySaved ? "Gespeichert ✓" : "Speichern")
+                                    .font(.appBody)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(apiKeySaved ? AppColor.success : AppColor.accent)
+                                Spacer()
+                            }
+                        }
+                        .disabled(settings.openAIKey.isEmpty)
+                        Divider()
+                        if !settings.openAIKey.isEmpty {
+                            Text("Aktiv: sk-…\(settings.openAIKey.suffix(4))")
+                                .captionText()
+                                .foregroundStyle(AppColor.textMuted)
+                            Divider()
+                        }
                         Text("Uses gpt-4o-mini. Stored locally only.")
                             .captionText()
                             .foregroundStyle(AppColor.textMuted)
