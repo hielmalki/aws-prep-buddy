@@ -9,7 +9,8 @@
     "./sections.json": "./dist/sections.json"
   },
   "scripts": {
-    "build": "tsc && node build/build.js"
+    "build": "tsc && node build/build.js",
+    "build:ios": "tsc && node build/build-ios.js"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
