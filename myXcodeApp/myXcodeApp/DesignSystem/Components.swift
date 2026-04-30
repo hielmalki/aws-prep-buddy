@@ -152,6 +152,7 @@ struct AppProgressBar: View {
             }
         }
         .frame(height: height)
+        .animation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.6), value: value)
     }
 }
 

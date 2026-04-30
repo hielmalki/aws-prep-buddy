@@ -238,7 +238,7 @@ private struct TopicAccordionCard: View {
         CardContainer {
             VStack(spacing: 0) {
                 // Header row
-                Button(action: { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } }) {
+                Button(action: { withAnimation(.timingCurve(0.2, 0.8, 0.2, 1, duration: 0.25)) { expanded.toggle() } }) {
                     HStack(spacing: 12) {
                         // 40pt IconBadge with book glyph
                         ZStack {
