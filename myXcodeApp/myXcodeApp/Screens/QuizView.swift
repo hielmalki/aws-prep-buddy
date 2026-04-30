@@ -49,8 +49,9 @@ struct QuizView: View {
                     if quiz.submitted { explanationPanel(question: question) }
                 }
                 .padding(AppSpacing.screenH)
-                .padding(.bottom, 120)
+                .padding(.bottom, 160)
             }
+            aiHelpBar
             actionBar(question: question)
         }
     }
@@ -141,32 +142,47 @@ struct QuizView: View {
         }
     }
 
-    private func actionBar(question: ContentQuestion) -> some View {
-        HStack(spacing: 12) {
-            Button(action: { showTutor = true }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                    Text("AI Help")
-                }
-                .font(.appSubtitle)
-                .foregroundStyle(AppColor.info)
-                .padding(.horizontal, 16).padding(.vertical, 12)
-                .background(AppColor.infoSoft, in: RoundedRectangle(cornerRadius: AppRadius.badge))
+    private var aiHelpBar: some View {
+        Button(action: { showTutor = true }) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(AppColor.accent)
+                Text("AI Help")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(AppColor.accent)
             }
-            Spacer()
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(AppColor.border, lineWidth: 0.5)
+            )
+        }
+        .padding(.horizontal, AppSpacing.screenH)
+        .padding(.bottom, 8)
+        .background(AppColor.surface)
+    }
+
+    private func actionBar(question: ContentQuestion) -> some View {
+        let canSubmit = !quiz.selectedOptions.isEmpty
+        return VStack(spacing: 0) {
             if !quiz.submitted {
                 Button("Check Answer") { quiz.submit() }
-                    .font(.appBody)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 22).padding(.vertical, 14)
-                    .background(quiz.selectedOptions.isEmpty ? AppColor.surface3 : AppColor.accent, in: Capsule())
-                    .disabled(quiz.selectedOptions.isEmpty)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(canSubmit ? .white : AppColor.textMuted)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(canSubmit ? AppColor.accent : AppColor.surface2,
+                                in: RoundedRectangle(cornerRadius: 14))
+                    .disabled(!canSubmit)
             } else {
                 Button("Next Question") { quiz.advance() }
-                    .font(.appBody)
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 22).padding(.vertical, 14)
-                    .background(AppColor.accent, in: Capsule())
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(AppColor.accent, in: RoundedRectangle(cornerRadius: 14))
             }
         }
         .padding(.horizontal, AppSpacing.screenH)
@@ -215,7 +231,7 @@ struct OptionRow: View {
                 ZStack {
                     Circle()
                         .fill(isSubmitted && isCorrect ? AppColor.success : (isSelected ? AppColor.accent : AppColor.surface3))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 32, height: 32)
                     Text(option.letter)
                         .font(.system(size: 13, weight: .bold))
                         .foregroundStyle(isSelected || (isSubmitted && isCorrect) ? .white : AppColor.textMuted)
