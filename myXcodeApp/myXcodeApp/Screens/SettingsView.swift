@@ -12,8 +12,23 @@ struct SettingsView: View {
             AppColor.screen.ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: AppSpacing.gap) {
-                    ScreenHeader(eyebrow: "Preferences", title: "Settings")
-                        .padding(.horizontal, 0)
+                    // Header mit Theme-Toggle
+                    BrandHeader(eyebrow: "Preferences", title: "Du") {
+                        Button(action: { toggleTheme() }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(AppColor.surface)
+                                    .frame(width: 38, height: 38)
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .strokeBorder(AppColor.border, lineWidth: 0.5)
+                                    }
+                                Image(systemName: settings.theme == "dark" ? "sun.max.fill" : "moon.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(AppColor.textPrimary)
+                            }
+                        }
+                    }
 
                     // Stats
                     let stats = progress.stats
@@ -48,21 +63,6 @@ struct SettingsView: View {
                         Text("Uses gpt-4o-mini. Stored locally only.")
                             .captionText()
                             .foregroundStyle(AppColor.textMuted)
-                    }
-
-                    // Theme
-                    settingsSection("Appearance") {
-                        HStack {
-                            Text("Theme").font(.appBody).foregroundStyle(AppColor.textPrimary)
-                            Spacer()
-                            Picker("", selection: $settings.theme) {
-                                Text("System").tag("system")
-                                Text("Light").tag("light")
-                                Text("Dark").tag("dark")
-                            }
-                            .pickerStyle(.segmented)
-                            .frame(maxWidth: 200)
-                        }
                     }
 
                     // Daily Goal
@@ -155,5 +155,13 @@ struct SettingsView: View {
         StorageService.shared.clearTable("decks")
         StorageService.shared.clearTable("cards")
         StorageService.shared.clearTable("tutor_memory")
+    }
+
+    private func toggleTheme() {
+        if settings.theme == "dark" {
+            settings.theme = "light"
+        } else {
+            settings.theme = "dark"
+        }
     }
 }

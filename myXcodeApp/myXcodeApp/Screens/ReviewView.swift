@@ -36,8 +36,24 @@ struct ReviewView: View {
                         let isCorrect = question.correctLetters.contains(option.letter)
                         let wasPicked = picked.contains(option.letter)
                         HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: isCorrect ? "checkmark.circle.fill" : (wasPicked ? "xmark.circle.fill" : "circle"))
-                                .foregroundStyle(isCorrect ? .green : (wasPicked ? .red : .secondary))
+                            ZStack {
+                                Circle()
+                                    .fill(isCorrect ? Color.green : (wasPicked ? Color.red : Color(.systemGray5)))
+                                    .frame(width: 32, height: 32)
+                                if isCorrect {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                } else if wasPicked {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                } else {
+                                    Text(option.letter)
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                             Text("\(option.letter). \(option.text)")
                                 .font(.body)
                         }

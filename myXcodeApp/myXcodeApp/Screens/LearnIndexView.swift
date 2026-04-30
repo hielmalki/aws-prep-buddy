@@ -34,6 +34,84 @@ struct LearnIndexView: View {
                                 .padding(.horizontal, AppSpacing.screenH)
                         } else {
                             VStack(spacing: AppSpacing.gap) {
+                                // Flashcards Card
+                                NavigationLink(destination: FlashcardsView()) {
+                                    HStack(spacing: 12) {
+                                        RoundedRectangle(cornerRadius: 11)
+                                            .fill(AppColor.accentSoft)
+                                            .frame(width: 44, height: 44)
+                                            .overlay {
+                                                Image(systemName: "rectangle.stack.fill")
+                                                    .font(.system(size: 22))
+                                                    .foregroundStyle(AppColor.accent)
+                                            }
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Anki-Style · SM-2")
+                                                .font(.system(size: 11, weight: .bold))
+                                                .kerning(0.5)
+                                                .textCase(.uppercase)
+                                                .foregroundStyle(AppColor.textMuted)
+                                            Text("Flashcards")
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(AppColor.textPrimary)
+                                            Text("Daily flashcard review")
+                                                .font(.system(size: 12))
+                                                .foregroundStyle(AppColor.textMuted)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(AppColor.textMuted)
+                                    }
+                                    .padding(14)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(AppColor.surface, in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .strokeBorder(AppColor.border, lineWidth: 0.5)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
+                                // Mindmap Card
+                                Button(action: {}) {
+                                    HStack(spacing: 12) {
+                                        RoundedRectangle(cornerRadius: 11)
+                                            .fill(AppColor.accentSoft)
+                                            .frame(width: 44, height: 44)
+                                            .overlay {
+                                                Image(systemName: "map.fill")
+                                                    .font(.system(size: 22))
+                                                    .foregroundStyle(AppColor.accent)
+                                            }
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Übersicht")
+                                                .font(.system(size: 11, weight: .bold))
+                                                .kerning(0.5)
+                                                .textCase(.uppercase)
+                                                .foregroundStyle(AppColor.accent)
+                                            Text("AWS-Service-Mindmap")
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(AppColor.textPrimary)
+                                            Text("Visuelle Übersicht aller Services")
+                                                .font(.system(size: 12))
+                                                .foregroundStyle(AppColor.textMuted)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(AppColor.textMuted)
+                                    }
+                                    .padding(14)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(AppColor.surface, in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .strokeBorder(AppColor.accent, lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
                                 ForEach(filtered) { section in
                                     NavigationLink(destination: LearnModuleView(section: section)) {
                                         CardContainer {

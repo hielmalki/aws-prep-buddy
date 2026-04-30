@@ -23,37 +23,38 @@ struct ExamListView: View {
                             NavigationLink(destination: QuizView(exam: exam, startFromFirst: false)) {
                                 CardContainer {
                                     HStack(spacing: AppSpacing.gap) {
-                                        IconBadge(systemName: "doc.text.fill", color: AppColor.accent, size: 48)
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            HStack {
-                                                Text("Exam \(exam.examId)")
-                                                    .cardTitle()
-                                                    .foregroundStyle(AppColor.textPrimary)
-                                                Spacer()
-                                                if ep.answered > 0 {
-                                                    PillBadge(
-                                                        text: String(format: "%.0f%%", ep.score * 100),
-                                                        fg: ep.score >= 0.7 ? AppColor.success : AppColor.danger,
-                                                        bg: ep.score >= 0.7 ? AppColor.successSoft : AppColor.dangerSoft
-                                                    )
-                                                }
+                                        IconBadge(systemName: "list.bullet.rectangle", color: AppColor.accent, size: 44)
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("EXAM \(exam.examId)")
+                                                .font(.system(size: 11, weight: .bold))
+                                                .kerning(0.5)
+                                                .textCase(.uppercase)
+                                                .foregroundStyle(AppColor.textMuted)
+                                            Text("Practice Exam \(exam.examId)")
+                                                .font(.system(size: 15, weight: .semibold))
+                                                .foregroundStyle(AppColor.textPrimary)
+                                            Text("\(ep.total) questions")
+                                                .font(.system(size: 12))
+                                                .foregroundStyle(AppColor.textMuted)
+                                        }
+                                        Spacer()
+                                        if ep.isComplete {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .font(.system(size: 14))
+                                                    .foregroundStyle(AppColor.success)
+                                                Text("\(Int(ep.score * 100))%")
+                                                    .font(.system(size: 14, weight: .semibold))
+                                                    .foregroundStyle(AppColor.success)
                                             }
-                                            AppProgressBar(value: ep.pct, height: 4)
-                                            HStack {
-                                                Text("\(ep.answered)/\(ep.total) questions")
-                                                    .captionText()
-                                                    .foregroundStyle(AppColor.textMuted)
-                                                Spacer()
-                                                if ep.isComplete {
-                                                    Text("Complete ✓")
-                                                        .captionText()
-                                                        .foregroundStyle(AppColor.success)
-                                                } else {
-                                                    Text("Continue →")
-                                                        .captionText()
-                                                        .foregroundStyle(AppColor.accent)
-                                                }
-                                            }
+                                        } else if ep.answered > 0 {
+                                            Text("\(ep.answered)/\(ep.total)")
+                                                .font(.system(size: 13, weight: .medium))
+                                                .foregroundStyle(AppColor.textMuted)
+                                        } else {
+                                            Image(systemName: "chevron.right")
+                                                .font(.system(size: 16))
+                                                .foregroundStyle(AppColor.textMuted)
                                         }
                                     }
                                 }

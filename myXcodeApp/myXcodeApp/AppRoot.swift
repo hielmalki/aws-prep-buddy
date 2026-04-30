@@ -29,7 +29,7 @@ struct AppRoot: View {
             NavigationStack {
                 SettingsView()
             }
-            .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+            .tabItem { Label("Du", systemImage: "gearshape.fill") }
             .tag(3)
         }
         .accentColor(AppColor.accent)
